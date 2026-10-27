@@ -43,6 +43,27 @@ Nicht anfassen: NS, MX, TXT, autoconfig/autodiscover/lists und alle `*.toeffchec
 
 Danach in GitHub unter **Settings → Pages** warten, bis der DNS-Check grün ist, und **Enforce HTTPS** anhaken (oder Claude macht das).
 
+## Neues Modell in den Ratgeber einfügen (5 Minuten)
+
+Alle Modelle stehen in **`site/modelle.js`**. Oben in der Datei ist erklärt, was jedes Feld bedeutet.
+
+1. `site/modelle.js` mit einem Texteditor öffnen (z. B. Editor oder VS Code).
+2. Einen bestehenden Block von `{` bis `},` kopieren und unten in der Liste `MODELLE` einfügen.
+3. `id`, `marke`, `modell`, Baujahre, `typ` und die Texte anpassen. Die `id` muss einmalig sein, klein geschrieben und mit Bindestrichen, z. B. `aprilia-tuono-660`.
+4. Speichern. Oder einfach Claude sagen: «Füg die Aprilia Tuono 660 hinzu», dann macht Claude das und pusht.
+
+Das Modell erscheint danach automatisch im Preis-Check, im Ratgeber und auf der Modellseite.
+
+## Google Search Console (einmalig, 10 Minuten)
+
+Damit Google die Seite schneller findet und du siehst, mit welchen Suchbegriffen Leute kommen:
+
+1. Auf **search.google.com/search-console** mit deinem Google-Konto anmelden.
+2. **Property hinzufügen** → **Domain** → `toeffcheck.ch` eingeben.
+3. Google zeigt einen TXT-Eintrag (beginnt mit `google-site-verification=`). Diesen bei Hostpoint in der DNS-Zone als **neuen TXT-Eintrag** für `toeffcheck.ch` hinzufügen. Den bestehenden SPF-TXT-Eintrag nicht ändern.
+4. In der Search Console auf **Bestätigen** klicken (kann ein paar Minuten dauern).
+5. Links **Sitemaps** → `sitemap.xml` eintragen → **Senden**.
+
 ## 4. Netlify aufräumen (wenn alles läuft)
 
 Erst wenn `toeffcheck.ch` über GitHub läuft und die Warteliste getestet ist: In Netlify unter **Forms** die alten Einträge (falls vorhanden) exportieren, dann die Site löschen oder die Domain entfernen.

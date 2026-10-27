@@ -16,8 +16,12 @@ Dieses Projekt ist ein **Business-Projekt**, kein Lernprojekt. Nicht unterrichte
 
 **Wichtig:** Kein Scraping von MotoScout24, tutti, ricardo usw. (AGB). Daten nur über Händler-Feeds, offizielle Schnittstellen oder Nutzereingaben. Keine erfundenen Marktpreise auf der Seite.
 
+**Öffentlicher Auftritt (Laras Vorgabe 27.10.2026):** Auf der Seite ist Töffcheck ein **Schulprojekt einer Privatperson, keine Firma**. Impressum, AGB und Datenschutz sind so formuliert. Keine Firmenbezeichnung, keine Gewinnabsicht behaupten oder bestreiten, keine Preise für den Deal-Alarm nennen.
+
+**Design und Texte:** Eigenständiger „Werkstatthandbuch“-Look (Papier #f2efe8, Tinte #121212, Startnummer-Gelb #ffc700, harte Kanten, Schriften Big Shoulders Display / IBM Plex Sans / IBM Plex Mono). Keine generischen Verläufe, Emojis oder Floskeln. Texte kurz, konkret, Schweizer Schreibweise, du-Form, kaum Gedankenstriche. Modellinfos nur, wenn sie belegbar sind; im Zweifel als Prüfpunkt formulieren statt als Tatsache.
+
 ## Ordner
-- `site/` – die Website (statisch, kein Build): `index.html`, `style.css`, `app.js`, `danke.html`, `impressum.html`, `datenschutz.html`
+- `site/` – die Website (statisch, kein Build): `index.html` (Preis-Check, Ratgeber, Checkliste, FAQ, Warteliste), `modelle.html` + `liste.js` (Modellübersicht), `modelle.js` (**Modell-Datenbank, neue Modelle hier einfügen**), `app.js`, `style.css`, `impressum.html`, `agb.html`, `datenschutz.html`, `danke.html`, `404.html`, `robots.txt`, `sitemap.xml`, Icons, `img/` (Unsplash-Fotos, Bildnachweis im Impressum)
 - `ANLEITUNG.md` – Schritt-für-Schritt für GitHub, Formspree und DNS
 - `.github/workflows/pages.yml` – veröffentlicht `site/` auf GitHub Pages
 - `.claude/launch.json` – lokaler Testserver (`python -m http.server` auf Port 8000)
@@ -40,6 +44,9 @@ Dieses Projekt ist ein **Business-Projekt**, kein Lernprojekt. Nicht unterrichte
   - ⬜ Optional: Domain im GitHub-Konto verifizieren (github.com → Settings → Pages → Add a domain, TXT-Eintrag bei Hostpoint) gegen Domain-Übernahme.
   - Hinweis: PowerShell `Invoke-WebRequest` auf diesem PC scheitert an HTTPS („Vertrauensstellung“), auch bei github.io. Live-Seite deshalb im Browser-Pane prüfen.
 - ⬜ Netlify erst abbauen, wenn GitHub Pages + Domain + Warteliste laufen (vorher allfällige Netlify-Formulareinträge exportieren). In Netlify steht `toeffcheck.ch` noch als Custom Domain.
+
+- ✅ **Relaunch 27.10.2026:** neues Design, 22 Modelle im Ratgeber (Stärken, Schwächen, Prüfpunkte, A2-Info), Typ-Checklisten für „Anderes Modell“, allgemeine Besichtigungs-Checkliste (statisches HTML, gut für SEO), Reifenalter-Rechner (DOT), anstehende Kosten, Verhandlungsziel, Ausreisser-Erkennung (Theil-Sen), Handy-Ergebnisleiste, Druckansicht. SEO: Titel/Description/Canonical/OG pro Seite, JSON-LD (WebSite, WebApplication, FAQPage, CollectionPage), robots.txt, sitemap.xml, 404-Seite. Neue Seite `agb.html`; Impressum/Datenschutz als Schulprojekt umgeschrieben.
+- ⬜ Google Search Console: Lara verifiziert per TXT bei Hostpoint und reicht `sitemap.xml` ein (Anleitung in ANLEITUNG.md). Bei Sitemap-Änderungen `lastmod` nachführen.
 
 ## Als Nächstes geplant
 1. Formspree-ID eintragen, Lara macht Testeintrag

@@ -3,124 +3,433 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Töffcheck – Ist der Töff seinen Preis wert?</title>
-<meta name="description" content="Gebrauchten Töff gefunden? Töffcheck rechnet aus Vergleichsangeboten den fairen Preis für deinen Kilometerstand aus und zeigt, worauf du bei der Besichtigung achten musst.">
-<meta property="og:title" content="Töffcheck – Ist der Töff seinen Preis wert?">
-<meta property="og:description" content="Fairer Preis für gebrauchte Motorräder in der Schweiz, plus Checklisten für die Besichtigung.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='5' fill='%23d52b1e'/%3E%3Crect x='7' y='13' width='18' height='6' fill='%23fff'/%3E%3Crect x='13' y='7' width='6' height='18' fill='%23fff'/%3E%3C/svg%3E">
+<title>Töffcheck: Fairer Preis für gebrauchte Motorräder in der Schweiz</title>
+<meta name="description" content="Gebrauchten Töff gefunden? Töffcheck rechnet aus Vergleichsangeboten den fairen Preis für den Kilometerstand aus und zeigt Schwachstellen und Checkliste für dein Modell.">
+<link rel="canonical" href="https://toeffcheck.ch/">
+<meta name="theme-color" content="#121212">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Töffcheck">
+<meta property="og:locale" content="de_CH">
+<meta property="og:url" content="https://toeffcheck.ch/">
+<meta property="og:title" content="Töffcheck: Ist der Töff seinen Preis wert?">
+<meta property="og:description" content="Fairer Preis für gebrauchte Motorräder in der Schweiz, plus Schwachstellen und Checkliste für die Besichtigung.">
+<meta property="og:image" content="https://toeffcheck.ch/img/og-toeffcheck.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;800&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<link rel="preload" as="image" href="img/hero-700.webp" imagesrcset="img/hero-700.webp 700w, img/hero-1200.webp 1200w" imagesizes="(min-width: 900px) 42vw, 100vw">
 <link rel="stylesheet" href="style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://toeffcheck.ch/#website",
+      "url": "https://toeffcheck.ch/",
+      "name": "Töffcheck",
+      "inLanguage": "de-CH"
+    },
+    {
+      "@type": "WebApplication",
+      "name": "Töffcheck Preis-Check",
+      "url": "https://toeffcheck.ch/#preis-check",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Alle (läuft im Browser)",
+      "inLanguage": "de-CH",
+      "description": "Schätzt den fairen Preis eines gebrauchten Motorrads aus Vergleichsangeboten und dem Kilometerstand.",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "CHF" },
+      "isPartOf": { "@id": "https://toeffcheck.ch/#website" }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "Woher kommen die Preise?", "acceptedAnswer": { "@type": "Answer", "text": "Von dir. Töffcheck sammelt keine Inserate. Du gibst Vergleichsangebote ein, die du zum Beispiel auf MotoScout24, tutti.ch oder ricardo gefunden hast. Daraus rechnet die Seite den fairen Preis." } },
+        { "@type": "Question", "name": "Wie rechnet Töffcheck den fairen Preis?", "acceptedAnswer": { "@type": "Answer", "text": "Töffcheck legt eine Linie durch deine Vergleichsangebote (Preis über Kilometer) und liest ab, was ein Töff mit dem Kilometerstand deines Inserats kosten sollte. Liegt der Preis mehr als 8 % darunter, ist es ein guter Deal, liegt er mehr als 8 % darüber, ist er zu teuer." } },
+        { "@type": "Question", "name": "Wie viele Vergleichsangebote brauche ich?", "acceptedAnswer": { "@type": "Answer", "text": "Mindestens drei. Mit fünf bis acht Angeboten wird das Ergebnis deutlich stabiler. Nimm das gleiche Modell und ähnliche Jahrgänge." } },
+        { "@type": "Question", "name": "Was heisst «ab MFK»?", "acceptedAnswer": { "@type": "Answer", "text": "Der Töff war frisch bei der Motorfahrzeugkontrolle des Strassenverkehrsamts und hat sie bestanden. Mängel aus der Prüfung sind behoben. Frag nach dem Prüfbericht." } },
+        { "@type": "Question", "name": "Was bedeutet 35 kW oder A2?", "acceptedAnswer": { "@type": "Answer", "text": "Mit dem Ausweis der Kategorie A beschränkt darfst du Töffs mit höchstens 35 kW fahren. Viele Modelle gibt es gedrosselt. Die Drosselung muss im Fahrzeugausweis eingetragen sein." } },
+        { "@type": "Question", "name": "Werden meine Eingaben gespeichert?", "acceptedAnswer": { "@type": "Answer", "text": "Nein. Der Preis-Check rechnet nur in deinem Browser. Gespeichert wird nur, was du freiwillig in die Warteliste einträgst." } }
+      ]
+    }
+  ]
+}
+</script>
 </head>
 <body>
-<div class="wrap">
-  <header class="hero">
-    <a class="brand" href="./"><span class="cross" aria-hidden="true"></span>Töffcheck</a>
-    <h1>Ist der Töff seinen <em>Preis</em> wert?</h1>
-    <p class="muted">Gib das Inserat und ein paar vergleichbare Angebote ein, zum Beispiel von MotoScout24, tutti.ch oder ricardo. Töffcheck rechnet den fairen Preis für genau diesen Kilometerstand aus und sagt dir, ob du verhandeln solltest.</p>
-  </header>
+<a class="skip" href="#preis-check">Direkt zum Preis-Check</a>
 
-  <section class="tool" aria-labelledby="t-check">
-    <div class="stack">
-      <span class="eyebrow">Preis-Check</span>
-      <h2 id="t-check">Das Inserat</h2>
-    </div>
-    <div class="grid">
-      <label for="model">Modell
-        <select id="model"></select>
-      </label>
-      <label for="year">Erste Inverkehrsetzung
-        <input id="year" type="number" min="1980" max="2026" value="2023">
-      </label>
-      <label for="km">Kilometerstand
-        <input id="km" type="number" min="0" step="100" value="6500">
-      </label>
-      <label for="ask">Verlangter Preis (CHF)
-        <input id="ask" type="number" min="0" step="50" value="8900">
-      </label>
-      <label for="mfk">MFK
-        <select id="mfk">
-          <option value="fresh">Frisch ab MFK</option>
-          <option value="valid" selected>Gültig, nicht frisch</option>
-          <option value="due">Fällig oder unbekannt</option>
-        </select>
-      </label>
-    </div>
+<header class="top">
+  <div class="wrap top-in">
+    <a class="logo" href="./" aria-label="Töffcheck, zur Startseite">
+      <svg viewBox="0 0 40 28" aria-hidden="true"><ellipse cx="20" cy="14" rx="18.5" ry="12.5" fill="#ffc700" stroke="#121212" stroke-width="2.5"/><path d="M11.5 14.5l5.5 5 11.5-11" fill="none" stroke="#121212" stroke-width="4"/></svg>
+      <span>Töffcheck</span>
+    </a>
+    <nav class="nav" aria-label="Hauptnavigation">
+      <a href="#preis-check">Preis-Check</a>
+      <a href="modelle.html">Modelle</a>
+      <a href="#besichtigung">Besichtigung</a>
+      <a href="#fragen">Fragen</a>
+    </nav>
+  </div>
+</header>
 
-    <div class="comps">
-      <h3>Vergleichsangebote</h3>
-      <p class="muted" style="font-size:.95rem">Gleiches Modell, ähnliches Jahr. Je mehr, desto genauer, mindestens drei.</p>
-      <div class="comp-head"><span>Preis (CHF)</span><span>Kilometer</span><span></span></div>
-      <div id="comp-rows" class="comps"></div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <button type="button" id="add-comp">+ Angebot hinzufügen</button>
-        <button type="button" id="clear">Alles leeren</button>
+<main>
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <p class="kicker">Gebrauchte Töffs · Schweiz</p>
+        <h1>Ist der Töff seinen <span class="hl">Preis</span> wert?</h1>
+        <p class="lead">Du hast ein Inserat gefunden und willst wissen, ob der Preis stimmt? Gib es zusammen mit ein paar Vergleichsangeboten ein. Töffcheck rechnet den fairen Preis für genau diesen Kilometerstand aus und zeigt dir, worauf du bei diesem Modell achten musst.</p>
+        <div class="cta">
+          <a class="btn btn-yellow" href="#preis-check">Preis prüfen</a>
+          <a class="btn btn-line" href="modelle.html">Modelle ansehen</a>
+        </div>
+        <ul class="facts">
+          <li>Kostenlos</li>
+          <li>Ohne Anmeldung</li>
+          <li>Rechnet nur in deinem Browser</li>
+          <li><span id="model-count">22</span> Modelle im Ratgeber</li>
+        </ul>
       </div>
-      <p class="example-note" id="example-note">Beispielwerte zum Ausprobieren, keine echten Marktdaten.</p>
+      <figure class="hero-photo">
+        <img src="img/hero-700.webp" srcset="img/hero-700.webp 700w, img/hero-1200.webp 1200w" sizes="(min-width: 900px) 42vw, 100vw" width="1200" height="1440" alt="Naked Bike mit Gepäckrolle, geparkt an einer Passstrasse vor einem Bergsee" fetchpriority="high">
+        <figcaption>Foto: Lucas Favre / Unsplash</figcaption>
+      </figure>
     </div>
-
-    <div class="result" aria-live="polite">
-      <div class="verdict">
-        <span class="pill none" id="pill">Zu wenig Daten</span>
-        <div class="big mono" id="diff">–</div>
-        <p class="muted" id="verdict-text">Trag mindestens drei Vergleichsangebote ein.</p>
-      </div>
-      <div class="figures">
-        <div class="fig"><span>Fairer Preis bei diesem km-Stand</span><span class="mono" id="est">–</span></div>
-        <div class="fig"><span>Fairer Bereich (±8 %)</span><span class="mono" id="range">–</span></div>
-        <div class="fig"><span>Wertverlust pro 1'000 km</span><span class="mono" id="slope">–</span></div>
-        <div class="fig"><span>Vergleichsangebote</span><span class="mono" id="n">–</span></div>
-      </div>
-      <div class="scale" aria-hidden="true"><div class="bar"></div><div class="mark" id="mark" style="left:50%"></div></div>
-      <div class="scale-labels"><span>Guter Deal</span><span>Fair</span><span>Zu teuer</span></div>
-    </div>
-    <p class="muted" id="mfk-note" style="font-size:.95rem"></p>
   </section>
 
-  <section class="check" aria-labelledby="t-list">
-    <div class="stack">
-      <span class="eyebrow">Besichtigung</span>
-      <h2 id="t-list">Darauf achten: <span id="list-model"></span></h2>
+  <section class="steps" aria-labelledby="t-steps">
+    <div class="wrap">
+      <h2 id="t-steps" class="sr-only">So gehst du vor</h2>
+      <ol>
+        <li><span class="no">01</span><h3>Inserat eintragen</h3><p>Modell, Jahrgang, Kilometer und Preis aus dem Inserat übernehmen.</p></li>
+        <li><span class="no">02</span><h3>Vergleichen</h3><p>Drei oder mehr ähnliche Angebote auf MotoScout24, tutti.ch oder ricardo suchen und Preis, Kilometer und Jahrgang eintragen.</p></li>
+        <li><span class="no">03</span><h3>Besichtigen</h3><p>Mit der Checkliste zum Verkäufer. Jeder gefundene Mangel ist ein Argument beim Verhandeln.</p></li>
+      </ol>
     </div>
-    <div class="model-note" id="model-note" hidden></div>
-    <ul id="checklist"></ul>
   </section>
 
-  <section class="wait" id="warteliste" aria-labelledby="t-wait">
-    <div class="stack">
-      <span class="eyebrow muted">Bald verfügbar</span>
-      <h2 id="t-wait">Deal-Alarm für dein Traumbike</h2>
-    </div>
-    <p class="muted">Du sagst uns, welches Bike du suchst. Sobald eins unter dem fairen Preis inseriert wird, bekommst du eine Nachricht. Trag dich ein, dann melden wir uns zum Start.</p>
-    <form id="warteliste-form" name="warteliste" method="POST" action="https://formspree.io/f/FORMSPREE_ID">
-      <input type="hidden" name="_subject" value="Neuer Eintrag Warteliste Töffcheck">
-      <p class="hp"><label>Nicht ausfüllen <input name="_gotcha" tabindex="-1" autocomplete="off"></label></p>
-      <div class="grid">
-        <label for="w-email">E-Mail
-          <input id="w-email" name="email" type="email" required autocomplete="email" placeholder="du@beispiel.ch">
-        </label>
-        <label for="w-model">Gesuchtes Modell
-          <input id="w-model" name="modell" type="text" required maxlength="120" placeholder="z. B. Honda VTR1000 SP-1">
-        </label>
-        <label for="w-canton">Kanton
-          <select id="w-canton" name="kanton"></select>
-        </label>
+  <section class="sec" id="preis-check" aria-labelledby="t-check">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-no" aria-hidden="true">01</span>
+        <div>
+          <p class="kicker">Preis-Check</p>
+          <h2 id="t-check">Was ist der Töff wert?</h2>
+        </div>
       </div>
-      <label class="consent" for="w-consent">
-        <input id="w-consent" name="einwilligung" type="checkbox" value="ja" required>
-        <span>Ich bin einverstanden, dass Töffcheck meine Angaben speichert, um mich über den Start und passende Angebote zu informieren. Ich kann mich jederzeit abmelden. Mehr dazu in der <a href="datenschutz.html">Datenschutzerklärung</a>.</span>
-      </label>
-      <div><button class="primary" type="submit">Auf die Warteliste</button></div>
-      <p class="muted" id="w-status" role="status" hidden></p>
-    </form>
+
+      <div class="tool-grid">
+        <div class="tool">
+          <fieldset class="group">
+            <legend><span class="tag">A</span> Das Inserat</legend>
+            <div class="fields">
+              <label class="span-2" for="model">Modell
+                <select id="model"></select>
+              </label>
+              <label class="span-2" for="typ" id="typ-wrap" hidden>Art des Töffs
+                <select id="typ"></select>
+              </label>
+              <label for="year">Jahrgang <small>(1. Inverkehrsetzung)</small>
+                <input id="year" type="number" inputmode="numeric" min="1970" max="2027" value="2023">
+              </label>
+              <label for="km">Kilometerstand
+                <input id="km" type="number" inputmode="numeric" min="0" step="100" value="6500">
+              </label>
+              <label for="ask">Verlangter Preis <small>(CHF)</small>
+                <input id="ask" type="number" inputmode="numeric" min="0" step="50" value="8900">
+              </label>
+              <label for="mfk">MFK
+                <select id="mfk">
+                  <option value="fresh">Frisch ab MFK</option>
+                  <option value="valid" selected>Gültig</option>
+                  <option value="due">Fällig / unbekannt</option>
+                </select>
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset class="group">
+            <legend><span class="tag">B</span> Vergleichsangebote</legend>
+            <p class="hint">Gleiches Modell, ähnliche Jahrgänge, mindestens drei. Je mehr, desto genauer.</p>
+            <div class="comp-table">
+              <div class="comp-head" aria-hidden="true"><span>Preis (CHF)</span><span>Kilometer</span><span>Jahrgang</span><span></span></div>
+              <div id="comp-rows"></div>
+            </div>
+            <div class="row-actions">
+              <button type="button" class="btn btn-small" id="add-comp">+ Angebot</button>
+              <button type="button" class="btn btn-small btn-ghost" id="clear">Alles leeren</button>
+            </div>
+            <p class="note" id="example-note">Das sind Beispielwerte zum Ausprobieren, keine echten Marktdaten.</p>
+          </fieldset>
+
+          <details class="group extras">
+            <summary><span class="tag">C</span> Was nach dem Kauf noch ansteht <small>(optional)</small></summary>
+            <p class="hint">Neue Reifen, Service, Reparaturen: Schätz die Kosten, zum Beispiel nach einer Offerte deiner Werkstatt. Töffcheck rechnet sie zum Preis dazu.</p>
+            <div class="fields">
+              <label for="x-reifen">Reifen <small>(CHF)</small><input id="x-reifen" class="extra" type="number" inputmode="numeric" min="0" step="10" placeholder="0"></label>
+              <label for="x-service">Service <small>(CHF)</small><input id="x-service" class="extra" type="number" inputmode="numeric" min="0" step="10" placeholder="0"></label>
+              <label for="x-mfk">MFK und Reparaturen <small>(CHF)</small><input id="x-mfk" class="extra" type="number" inputmode="numeric" min="0" step="10" placeholder="0"></label>
+              <label for="x-sonst">Sonstiges <small>(CHF)</small><input id="x-sonst" class="extra" type="number" inputmode="numeric" min="0" step="10" placeholder="0"></label>
+            </div>
+          </details>
+        </div>
+
+        <aside class="result" aria-live="polite" aria-labelledby="t-result">
+          <h3 id="t-result" class="result-title">Ergebnis</h3>
+          <div class="verdict">
+            <span class="badge none" id="badge">Zu wenig Daten</span>
+            <div class="big" id="diff">–</div>
+            <p id="verdict-text">Trag mindestens drei Vergleichsangebote ein.</p>
+          </div>
+          <div class="gauge" aria-hidden="true">
+            <div class="gauge-bar"><span class="z good"></span><span class="z fair"></span><span class="z bad"></span></div>
+            <div class="gauge-mark" id="mark"></div>
+            <div class="gauge-labels"><span>Guter Deal</span><span>Fair</span><span>Zu teuer</span></div>
+          </div>
+          <dl class="figures">
+            <div><dt id="est-label">Fairer Preis</dt><dd id="est">–</dd></div>
+            <div><dt>Fairer Bereich (±8 %)</dt><dd id="range">–</dd></div>
+            <div><dt>Wertverlust pro 1'000 km</dt><dd id="slope">–</dd></div>
+            <div id="eff-row" hidden><dt>Preis inkl. anstehender Kosten</dt><dd id="eff">–</dd></div>
+            <div><dt>Vergleichsangebote</dt><dd id="n">–</dd></div>
+          </dl>
+          <div class="deal-tip" id="deal-tip" hidden></div>
+          <ul class="warnings" id="warnings"></ul>
+          <button type="button" class="btn btn-small btn-ghost" id="copy" disabled>Ergebnis kopieren</button>
+        </aside>
+        <a class="mini-result no-print" id="mini" href="#t-result" hidden><span class="badge none" id="mini-badge">Zu wenig Daten</span><span class="mini-diff" id="mini-diff"></span><span class="mini-go">Ergebnis ↓</span></a>
+      </div>
+    </div>
   </section>
 
-  <footer>
-    <span>Die Berechnung stützt sich nur auf die Vergleichsangebote, die du eingibst. Die Checklisten sind allgemeine Hinweise und ersetzen keine Besichtigung durch eine Fachperson.</span>
-    <nav><a href="impressum.html">Impressum</a><a href="datenschutz.html">Datenschutz</a></nav>
-  </footer>
-</div>
+  <section class="sec sec-alt" id="ratgeber" aria-labelledby="t-rat">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-no" aria-hidden="true">02</span>
+        <div>
+          <p class="kicker">Modell-Ratgeber</p>
+          <h2 id="t-rat"><span id="rat-marke"></span> <span id="rat-modell"></span></h2>
+        </div>
+      </div>
+      <div class="rat-grid">
+        <div class="rat-main">
+          <p class="rat-kurz" id="rat-kurz"></p>
+          <p class="rat-hinweis" id="rat-hinweis" hidden></p>
+          <div class="proscons" id="proscons">
+            <div><h3>Stärken</h3><ul class="plus" id="rat-plus"></ul></div>
+            <div><h3>Schwächen</h3><ul class="minus" id="rat-minus"></ul></div>
+          </div>
+          <h3 class="list-title" id="rat-check-title">Darauf achten</h3>
+          <ul class="checks" id="rat-checks"></ul>
+          <h3 class="list-title" id="rat-typ-title"></h3>
+          <ul class="checks" id="rat-typ"></ul>
+          <div class="rat-actions no-print">
+            <button type="button" class="btn btn-small" id="print">Checkliste drucken</button>
+            <a class="btn btn-small btn-ghost" href="modelle.html">Alle Modelle</a>
+          </div>
+        </div>
+        <aside class="rat-side">
+          <dl class="spec" id="spec"></dl>
+          <figure class="photo no-print">
+            <img src="img/bremse-600.webp" srcset="img/bremse-600.webp 600w, img/bremse-1100.webp 1100w" sizes="(min-width: 980px) 30vw, 100vw" width="1100" height="733" loading="lazy" alt="Nahaufnahme einer Vorderradbremse mit Bremsscheibe und Bremssattel">
+            <figcaption>Foto: Ronnzy Moto / Unsplash</figcaption>
+          </figure>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <section class="band no-print" aria-label="Tipp zum Kaufzeitpunkt">
+    <img src="img/pass-1000.webp" srcset="img/pass-1000.webp 1000w, img/pass-1800.webp 1800w" sizes="100vw" width="1800" height="1200" loading="lazy" alt="Töff in einer Kurve auf einer Bergstrasse im Sommer">
+    <div class="band-text">
+      <p class="kicker">Tipp</p>
+      <p class="band-big">Im Herbst kaufen, im Frühling fahren.</p>
+      <p>Ab Oktober wollen viele ihren Töff vor dem Winter loswerden. Weniger Käufer heisst mehr Spielraum beim Preis.</p>
+    </div>
+    <span class="credit">Foto: Yury Kirillov / Unsplash</span>
+  </section>
+
+  <section class="sec" id="besichtigung" aria-labelledby="t-bes">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-no" aria-hidden="true">03</span>
+        <div>
+          <p class="kicker">Besichtigung</p>
+          <h2 id="t-bes">Die Checkliste für jeden Töff</h2>
+        </div>
+      </div>
+      <p class="sec-lead">Diese Punkte gelten für alle Modelle. Nimm sie aufs Handy oder druck sie aus, zusammen mit den Punkten zu deinem Modell oben. Hak ab, was du geprüft hast.</p>
+
+      <div class="check-grid">
+        <div class="check-card">
+          <h3><span class="tag">1</span> Papiere und Vorgeschichte</h3>
+          <ul class="checks">
+            <li><label><input type="checkbox"><span>Fahrzeugausweis: Stimmt die Rahmennummer mit der am Töff überein? Wer ist als Halter eingetragen?</span></label></li>
+            <li><label><input type="checkbox"><span>Serviceheft und Rechnungen. Fehlen Belege, rechne einen grossen Service mit ein.</span></label></li>
+            <li><label><input type="checkbox"><span>Wann war die letzte MFK, und was wurde dort bemängelt?</span></label></li>
+            <li><label><input type="checkbox"><span>Sind beide Schlüssel da? Ein Ersatzschlüssel mit Wegfahrsperre kann teuer werden.</span></label></li>
+            <li><label><input type="checkbox"><span>Rückrufe: Beim Markenhändler mit der Rahmennummer nachfragen, ob alle erledigt sind.</span></label></li>
+          </ul>
+        </div>
+        <div class="check-card">
+          <h3><span class="tag">2</span> Rahmen und Fahrwerk</h3>
+          <ul class="checks">
+            <li><label><input type="checkbox"><span>Sturzspuren an Hebeln, Lenkerenden, Fussrasten, Spiegeln und Verkleidung.</span></label></li>
+            <li><label><input type="checkbox"><span>Gabel: Ölspuren an den Standrohren?</span></label></li>
+            <li><label><input type="checkbox"><span>Lenkkopflager: Vorderrad entlasten und den Lenker langsam drehen. Rastet er in der Mitte ein, sind die Lager verschlissen.</span></label></li>
+            <li><label><input type="checkbox"><span>Federbein: Hinten kräftig einfedern. Wippt es mehrmals nach, ist die Dämpfung schwach.</span></label></li>
+          </ul>
+        </div>
+        <div class="check-card">
+          <h3><span class="tag">3</span> Motor</h3>
+          <ul class="checks">
+            <li><label><input type="checkbox"><span>Kaltstart: Bitte vorher darum, dass der Motor vor deinem Besuch nicht läuft.</span></label></li>
+            <li><label><input type="checkbox"><span>Blauer Rauch heisst Ölverbrauch. Weisser Rauch bei warmem Motor kann auf Kühlflüssigkeit im Brennraum hindeuten.</span></label></li>
+            <li><label><input type="checkbox"><span>Ölstand und Ölfarbe prüfen, unter dem Motor nach Tropfen schauen.</span></label></li>
+            <li><label><input type="checkbox"><span>Leerlauf: Läuft er auch warm ruhig und gleichmässig?</span></label></li>
+          </ul>
+        </div>
+        <div class="check-card">
+          <h3><span class="tag">4</span> Elektrik</h3>
+          <ul class="checks">
+            <li><label><input type="checkbox"><span>Alle Lichter, Blinker, Hupe und Bremslicht testen, vorne und hinten auslösen.</span></label></li>
+            <li><label><input type="checkbox"><span>Ladespannung mit einem Multimeter an der Batterie: Bei laufendem Motor sollten es etwa 13,5 bis 14,5 Volt sein.</span></label></li>
+            <li><label><input type="checkbox"><span>Gehen alle Warnleuchten nach dem Start aus?</span></label></li>
+          </ul>
+        </div>
+        <div class="check-card">
+          <h3><span class="tag">5</span> Antrieb und Bremsen</h3>
+          <ul class="checks">
+            <li><label><input type="checkbox"><span>Kette: Lässt sie sich hinten am Kettenrad weit abziehen oder sind die Zähne spitz und hakenförmig, ist der Kettensatz fällig.</span></label></li>
+            <li><label><input type="checkbox"><span>Bremsscheiben: Die Mindestdicke ist auf der Scheibe eingeprägt. Ein spürbarer Rand aussen zeigt Verschleiss.</span></label></li>
+            <li><label><input type="checkbox"><span>Bremsflüssigkeit: hell und klar ist gut, dunkelbraun heisst überfällig.</span></label></li>
+          </ul>
+        </div>
+        <div class="check-card">
+          <h3><span class="tag">6</span> Reifen</h3>
+          <ul class="checks">
+            <li><label><input type="checkbox"><span>Profiltiefe: Das gesetzliche Minimum liegt in der Schweiz bei 1,6 mm. Sinnvoll ist deutlich mehr.</span></label></li>
+            <li><label><input type="checkbox"><span>Alter: Die DOT-Nummer auf der Flanke zeigt Woche und Jahr. Alte Reifen werden hart, auch mit viel Profil. Rechne es unten aus.</span></label></li>
+          </ul>
+        </div>
+        <div class="check-card">
+          <h3><span class="tag">7</span> Probefahrt</h3>
+          <ul class="checks">
+            <li><label><input type="checkbox"><span>Läuft der Töff mit lockerem Griff sauber geradeaus?</span></label></li>
+            <li><label><input type="checkbox"><span>Alle Gänge hoch und runter schalten. Springt ein Gang raus?</span></label></li>
+            <li><label><input type="checkbox"><span>Kräftig bremsen: Pulsiert der Hebel, sind die Scheiben verzogen.</span></label></li>
+            <li><label><input type="checkbox"><span>Vorher klären, auf wessen Kontrollschild und Versicherung du fährst.</span></label></li>
+          </ul>
+        </div>
+        <div class="check-card">
+          <h3><span class="tag">8</span> Kauf</h3>
+          <ul class="checks">
+            <li><label><input type="checkbox"><span>Schriftlicher Kaufvertrag mit Rahmennummer, Kilometerstand, bekannten Mängeln und Zahlungsart. Vorlagen gibt es zum Beispiel beim TCS.</span></label></li>
+            <li><label><input type="checkbox"><span>Die Kontrollschilder bleiben beim bisherigen Halter. Für die Heimfahrt brauchst du eigene Schilder oder einen Anhänger.</span></label></li>
+            <li><label><input type="checkbox"><span>Kein Geld vorab überweisen, bevor du den Töff gesehen hast.</span></label></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="dot-box no-print">
+        <figure class="photo">
+          <img src="img/werkstatt-600.webp" srcset="img/werkstatt-600.webp 600w, img/werkstatt-1100.webp 1100w" sizes="(min-width: 980px) 40vw, 100vw" width="1100" height="733" loading="lazy" alt="Person schraubt in einer Tiefgarage an einer Reiseenduro, daneben ein offener Werkzeugkoffer">
+          <figcaption>Foto: Angry._.Kat / Unsplash</figcaption>
+        </figure>
+        <div class="dot-calc">
+          <h3>Wie alt sind die Reifen?</h3>
+          <p>Auf der Reifenflanke steht nach «DOT» eine Reihe von Zeichen. Die letzten vier Ziffern sind Woche und Jahr der Herstellung. «2319» heisst also Woche 23 im Jahr 2019.</p>
+          <label for="dot">Letzte vier Ziffern der DOT-Nummer
+            <input id="dot" type="text" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" placeholder="z. B. 2319" autocomplete="off">
+          </label>
+          <p class="dot-out" id="dot-out" aria-live="polite"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec sec-alt" id="fragen" aria-labelledby="t-faq">
+    <div class="wrap faq-wrap">
+      <div class="sec-head">
+        <span class="sec-no" aria-hidden="true">04</span>
+        <div>
+          <p class="kicker">Fragen</p>
+          <h2 id="t-faq">Kurz erklärt</h2>
+        </div>
+      </div>
+      <div class="faq">
+        <details><summary>Woher kommen die Preise?</summary><p>Von dir. Töffcheck sammelt keine Inserate. Du gibst Vergleichsangebote ein, die du zum Beispiel auf MotoScout24, tutti.ch oder ricardo gefunden hast. Daraus rechnet die Seite den fairen Preis.</p></details>
+        <details><summary>Wie rechnet Töffcheck den fairen Preis?</summary><p>Je mehr Kilometer, desto günstiger, das gilt fast immer. Töffcheck legt eine Linie durch deine Vergleichsangebote (Preis über Kilometer) und liest ab, was ein Töff mit dem Kilometerstand deines Inserats kosten sollte. Liegt der Preis mehr als 8 % darunter, ist es ein guter Deal, liegt er mehr als 8 % darüber, ist er zu teuer. Sinkt der Preis bei deinen Angeboten nicht mit den Kilometern, nimmt Töffcheck den mittleren Preis (Median).</p></details>
+        <details><summary>Wie viele Vergleichsangebote brauche ich?</summary><p>Mindestens drei. Mit fünf bis acht Angeboten wird das Ergebnis deutlich stabiler. Nimm das gleiche Modell und ähnliche Jahrgänge. Töffcheck warnt dich, wenn ein Angebot stark abweicht.</p></details>
+        <details><summary>Was heisst «ab MFK»?</summary><p>Der Töff war frisch bei der Motorfahrzeugkontrolle des Strassenverkehrsamts und hat sie bestanden. Mängel aus der Prüfung sind behoben. Frag nach dem Prüfbericht.</p></details>
+        <details><summary>Was bedeutet 35 kW oder A2?</summary><p>Mit dem Ausweis der Kategorie A beschränkt darfst du Töffs mit höchstens 35 kW fahren. Viele Modelle gibt es gedrosselt. Wichtig: Die Drosselung muss im Fahrzeugausweis eingetragen sein. Auf der <a href="modelle.html">Modellseite</a> kannst du nach A2-tauglichen Töffs filtern.</p></details>
+        <details><summary>Werden meine Eingaben gespeichert?</summary><p>Nein. Der Preis-Check rechnet nur in deinem Browser. Gespeichert wird nur, was du freiwillig in die Warteliste einträgst. Mehr dazu in der <a href="datenschutz.html">Datenschutzerklärung</a>.</p></details>
+        <details><summary>Mein Modell fehlt. Was nun?</summary><p>Wähl «Anderes Modell» und die Art des Töffs. Du bekommst dann die allgemeinen Punkte und die typischen Schwachstellen dieser Töff-Art. Wenn du ein Modell vermisst, schreib an <a href="mailto:lara.schlueter07@gmail.com?subject=Modellwunsch%20T%C3%B6ffcheck">lara.schlueter07@gmail.com</a>.</p></details>
+        <details><summary>Wer steckt hinter Töffcheck?</summary><p>Töffcheck ist ein Schulprojekt einer Töff-Fahrerin aus Wädenswil. Es steht keine Firma dahinter, und die Seite ist kostenlos. Details im <a href="impressum.html">Impressum</a>.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec alarm no-print" id="deal-alarm" aria-labelledby="t-wait">
+    <div class="wrap alarm-grid">
+      <div>
+        <p class="kicker">Bald verfügbar</p>
+        <h2 id="t-wait">Deal-Alarm für dein Traumbike</h2>
+        <p>Sag uns, welches Modell du suchst. Wenn der Deal-Alarm startet, meldet er sich, sobald ein Angebot unter dem fairen Preis auftaucht. Trag dich ein, dann erfährst du als Erstes davon.</p>
+      </div>
+      <form id="warteliste-form" name="warteliste" method="POST" action="https://formspree.io/f/FORMSPREE_ID">
+        <input type="hidden" name="_subject" value="Neuer Eintrag Warteliste Töffcheck">
+        <p class="hp"><label>Nicht ausfüllen <input name="_gotcha" tabindex="-1" autocomplete="off"></label></p>
+        <div class="fields">
+          <label class="span-2" for="w-email">E-Mail
+            <input id="w-email" name="email" type="email" required autocomplete="email" placeholder="du@beispiel.ch">
+          </label>
+          <label for="w-model">Gesuchtes Modell
+            <input id="w-model" name="modell" type="text" required maxlength="120" placeholder="z. B. Honda VTR1000 SP-1">
+          </label>
+          <label for="w-canton">Kanton
+            <select id="w-canton" name="kanton"></select>
+          </label>
+        </div>
+        <label class="consent" for="w-consent">
+          <input id="w-consent" name="einwilligung" type="checkbox" value="ja" required>
+          <span>Ich bin einverstanden, dass Töffcheck meine Angaben speichert, um mich über den Start und passende Angebote zu informieren. Ich kann mich jederzeit abmelden. Mehr dazu in der <a href="datenschutz.html">Datenschutzerklärung</a>.</span>
+        </label>
+        <div><button class="btn btn-yellow" type="submit">Auf die Warteliste</button></div>
+        <p class="form-status" id="w-status" role="status" hidden></p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-grid">
+    <div>
+      <a class="logo logo-inv" href="./" aria-label="Töffcheck, zur Startseite">
+        <svg viewBox="0 0 40 28" aria-hidden="true"><ellipse cx="20" cy="14" rx="18.5" ry="12.5" fill="#ffc700" stroke="#121212" stroke-width="2.5"/><path d="M11.5 14.5l5.5 5 11.5-11" fill="none" stroke="#121212" stroke-width="4"/></svg>
+        <span>Töffcheck</span>
+      </a>
+      <p>Ein Schulprojekt aus Wädenswil. Keine Firma, keine Werbung, keine Cookies.</p>
+    </div>
+    <nav aria-label="Weitere Seiten">
+      <a href="modelle.html">Alle Modelle</a>
+      <a href="impressum.html">Impressum</a>
+      <a href="agb.html">AGB</a>
+      <a href="datenschutz.html">Datenschutz</a>
+    </nav>
+    <p class="foot-small">Die Berechnung stützt sich nur auf die Angebote, die du eingibst. Ratgeber und Checklisten sind allgemeine Hinweise und ersetzen keine Fachperson. Töffcheck ist nicht mit MotoScout24, tutti.ch oder ricardo verbunden.</p>
+  </div>
+</footer>
+
+<script src="modelle.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
