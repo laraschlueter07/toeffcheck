@@ -18,8 +18,9 @@ Dieses Projekt ist ein **Business-Projekt**, kein Lernprojekt. Nicht unterrichte
 
 ## Ordner
 - `site/` – die Website (statisch, kein Build): `index.html`, `style.css`, `app.js`, `danke.html`, `impressum.html`, `datenschutz.html`
-- `ANLEITUNG.md` – Schritt-für-Schritt für Netlify, Formular und Domain
-- `netlify.toml` – Publish-Ordner `site` (für Deploy über GitHub)
+- `ANLEITUNG.md` – Schritt-für-Schritt für GitHub, Formspree und DNS
+- `.github/workflows/pages.yml` – veröffentlicht `site/` auf GitHub Pages
+- `.claude/launch.json` – lokaler Testserver (`python -m http.server` auf Port 8000)
 
 ## Stand (27.10.2026)
 - ✅ Website online auf Netlify: https://effulgent-tulumba-b5972b.netlify.app (öffentlich, bisher per Drag & Drop auf Netlify Drop hochgeladen)
@@ -34,13 +35,15 @@ Dieses Projekt ist ein **Business-Projekt**, kein Lernprojekt. Nicht unterrichte
   - ✅ Warteliste auf Formspree umgebaut (`action="https://formspree.io/f/FORMSPREE_ID"`, Honeypot `_gotcha`, Versand per fetch in `app.js`, danach `danke.html`). ⬜ Lara legt Formspree-Konto an und gibt die Formular-ID, dann `FORMSPREE_ID` ersetzen.
   - ✅ Datenschutz auf GitHub + Formspree umgeschrieben. ⬜ DPF-Status von GitHub, Inc. und Formspree, Inc. auf dataprivacyframework.gov noch nicht geprüft (nichts behaupten, bevor bestätigt).
   - ✅ GitHub-Konto `laraschlueter07`, `gh` angemeldet (Scopes repo, workflow). Öffentliches Repo https://github.com/laraschlueter07/toeffcheck, Branch `main`, Pages-Quelle „GitHub Actions“. **Live: https://laraschlueter07.github.io/toeffcheck/** (erster Deploy 27.10.2026 erfolgreich). Claude darf in diesem Repo selbstständig committen und auf `main` pushen; Commits laufen mit der noreply-Adresse `348843019+laraschlueter07@users.noreply.github.com` (lokal in git config gesetzt).
-  - ⬜ Custom Domain `toeffcheck.ch` in GitHub erst setzen, **nachdem** DNS bei Hostpoint umgestellt ist (sonst leitet github.io auf die noch falsche Domain um): `gh api -X PUT repos/laraschlueter07/toeffcheck/pages -f cname=toeffcheck.ch`, danach HTTPS erzwingen mit `-F https_enforced=true`. Optional: Domain im GitHub-Konto verifizieren (Settings → Pages → Add a domain, TXT-Eintrag bei Hostpoint) gegen Domain-Übernahme.
-- ⬜ **DNS bei Hostpoint noch nicht umgestellt** (jetzt für GitHub Pages, Anleitung in `ANLEITUNG.md` Schritt 3): A `toeffcheck.ch` auf `185.199.108.153`, `.109.153`, `.110.153`, `.111.153`; AAAA ohne `*` löschen; `www` CNAME → `<user>.github.io`. NS, MX, TXT, autoconfig/autodiscover/lists und `*`-Zeilen nicht anfassen. Prüfen mit `Resolve-DnsName toeffcheck.ch -Server 1.1.1.1 -DnsOnly`.
+  - ✅ **DNS bei Hostpoint umgestellt (27.10.2026):** `toeffcheck.ch` A → `185.199.108–111.153`, alter A/AAAA ohne `*` gelöscht, `www` CNAME → `laraschlueter07.github.io`. `*`-Zeilen, MX, TXT usw. unverändert. Hostpoint hatte die alten A/AAAA-Werte zwischendurch selbst geändert und beim ersten Speichern „Unerwarteter interner Fehler“ gezeigt; schrittweises Löschen/Hinzufügen klappte.
+  - ✅ **Custom Domain `toeffcheck.ch` in GitHub Pages gesetzt, Zertifikat ausgestellt, HTTPS erzwungen. Live: https://toeffcheck.ch** (www leitet auf die Hauptdomain um). Im Browser geprüft.
+  - ⬜ Optional: Domain im GitHub-Konto verifizieren (github.com → Settings → Pages → Add a domain, TXT-Eintrag bei Hostpoint) gegen Domain-Übernahme.
+  - Hinweis: PowerShell `Invoke-WebRequest` auf diesem PC scheitert an HTTPS („Vertrauensstellung“), auch bei github.io. Live-Seite deshalb im Browser-Pane prüfen.
 - ⬜ Netlify erst abbauen, wenn GitHub Pages + Domain + Warteliste laufen (vorher allfällige Netlify-Formulareinträge exportieren). In Netlify steht `toeffcheck.ch` noch als Custom Domain.
 
 ## Als Nächstes geplant
-1. GitHub-Repo + Pages einrichten, Formspree-ID eintragen
-2. DNS bei Hostpoint auf GitHub umstellen, HTTPS in GitHub aktivieren
+1. Formspree-ID eintragen, Lara macht Testeintrag
+2. DPF-Status GitHub/Formspree prüfen, Datenschutz ergänzen; Netlify abbauen
 3. Händler-Anschreiben + Liste von Töff-Händlern (Region Zürichsee / Zürich zuerst) – Entwürfe, Lara verschickt selbst
 4. Später: eigene Adresse `hallo@toeffcheck.ch` bei Hostpoint, dann in Impressum/Datenschutz die Gmail-Adresse ersetzen
 
