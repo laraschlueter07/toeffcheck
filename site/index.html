@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Töffcheck – Ist der Töff seinen Preis wert?</title>
+<meta name="description" content="Gebrauchten Töff gefunden? Töffcheck rechnet aus Vergleichsangeboten den fairen Preis für deinen Kilometerstand aus und zeigt, worauf du bei der Besichtigung achten musst.">
+<meta property="og:title" content="Töffcheck – Ist der Töff seinen Preis wert?">
+<meta property="og:description" content="Fairer Preis für gebrauchte Motorräder in der Schweiz, plus Checklisten für die Besichtigung.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='5' fill='%23d52b1e'/%3E%3Crect x='7' y='13' width='18' height='6' fill='%23fff'/%3E%3Crect x='13' y='7' width='6' height='18' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;800&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <a class="brand" href="./"><span class="cross" aria-hidden="true"></span>Töffcheck</a>
+    <h1>Ist der Töff seinen <em>Preis</em> wert?</h1>
+    <p class="muted">Gib das Inserat und ein paar vergleichbare Angebote ein, zum Beispiel von MotoScout24, tutti.ch oder ricardo. Töffcheck rechnet den fairen Preis für genau diesen Kilometerstand aus und sagt dir, ob du verhandeln solltest.</p>
+  </header>
+
+  <section class="tool" aria-labelledby="t-check">
+    <div class="stack">
+      <span class="eyebrow">Preis-Check</span>
+      <h2 id="t-check">Das Inserat</h2>
+    </div>
+    <div class="grid">
+      <label for="model">Modell
+        <select id="model"></select>
+      </label>
+      <label for="year">Erste Inverkehrsetzung
+        <input id="year" type="number" min="1980" max="2026" value="2023">
+      </label>
+      <label for="km">Kilometerstand
+        <input id="km" type="number" min="0" step="100" value="6500">
+      </label>
+      <label for="ask">Verlangter Preis (CHF)
+        <input id="ask" type="number" min="0" step="50" value="8900">
+      </label>
+      <label for="mfk">MFK
+        <select id="mfk">
+          <option value="fresh">Frisch ab MFK</option>
+          <option value="valid" selected>Gültig, nicht frisch</option>
+          <option value="due">Fällig oder unbekannt</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="comps">
+      <h3>Vergleichsangebote</h3>
+      <p class="muted" style="font-size:.95rem">Gleiches Modell, ähnliches Jahr. Je mehr, desto genauer, mindestens drei.</p>
+      <div class="comp-head"><span>Preis (CHF)</span><span>Kilometer</span><span></span></div>
+      <div id="comp-rows" class="comps"></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button type="button" id="add-comp">+ Angebot hinzufügen</button>
+        <button type="button" id="clear">Alles leeren</button>
+      </div>
+      <p class="example-note" id="example-note">Beispielwerte zum Ausprobieren, keine echten Marktdaten.</p>
+    </div>
+
+    <div class="result" aria-live="polite">
+      <div class="verdict">
+        <span class="pill none" id="pill">Zu wenig Daten</span>
+        <div class="big mono" id="diff">–</div>
+        <p class="muted" id="verdict-text">Trag mindestens drei Vergleichsangebote ein.</p>
+      </div>
+      <div class="figures">
+        <div class="fig"><span>Fairer Preis bei diesem km-Stand</span><span class="mono" id="est">–</span></div>
+        <div class="fig"><span>Fairer Bereich (±8 %)</span><span class="mono" id="range">–</span></div>
+        <div class="fig"><span>Wertverlust pro 1'000 km</span><span class="mono" id="slope">–</span></div>
+        <div class="fig"><span>Vergleichsangebote</span><span class="mono" id="n">–</span></div>
+      </div>
+      <div class="scale" aria-hidden="true"><div class="bar"></div><div class="mark" id="mark" style="left:50%"></div></div>
+      <div class="scale-labels"><span>Guter Deal</span><span>Fair</span><span>Zu teuer</span></div>
+    </div>
+    <p class="muted" id="mfk-note" style="font-size:.95rem"></p>
+  </section>
+
+  <section class="check" aria-labelledby="t-list">
+    <div class="stack">
+      <span class="eyebrow">Besichtigung</span>
+      <h2 id="t-list">Darauf achten: <span id="list-model"></span></h2>
+    </div>
+    <div class="model-note" id="model-note" hidden></div>
+    <ul id="checklist"></ul>
+  </section>
+
+  <section class="wait" id="warteliste" aria-labelledby="t-wait">
+    <div class="stack">
+      <span class="eyebrow muted">Bald verfügbar</span>
+      <h2 id="t-wait">Deal-Alarm für dein Traumbike</h2>
+    </div>
+    <p class="muted">Du sagst uns, welches Bike du suchst. Sobald eins unter dem fairen Preis inseriert wird, bekommst du eine Nachricht. Trag dich ein, dann melden wir uns zum Start.</p>
+    <form id="warteliste-form" name="warteliste" method="POST" action="https://formspree.io/f/FORMSPREE_ID">
+      <input type="hidden" name="_subject" value="Neuer Eintrag Warteliste Töffcheck">
+      <p class="hp"><label>Nicht ausfüllen <input name="_gotcha" tabindex="-1" autocomplete="off"></label></p>
+      <div class="grid">
+        <label for="w-email">E-Mail
+          <input id="w-email" name="email" type="email" required autocomplete="email" placeholder="du@beispiel.ch">
+        </label>
+        <label for="w-model">Gesuchtes Modell
+          <input id="w-model" name="modell" type="text" required maxlength="120" placeholder="z. B. Honda VTR1000 SP-1">
+        </label>
+        <label for="w-canton">Kanton
+          <select id="w-canton" name="kanton"></select>
+        </label>
+      </div>
+      <label class="consent" for="w-consent">
+        <input id="w-consent" name="einwilligung" type="checkbox" value="ja" required>
+        <span>Ich bin einverstanden, dass Töffcheck meine Angaben speichert, um mich über den Start und passende Angebote zu informieren. Ich kann mich jederzeit abmelden. Mehr dazu in der <a href="datenschutz.html">Datenschutzerklärung</a>.</span>
+      </label>
+      <div><button class="primary" type="submit">Auf die Warteliste</button></div>
+      <p class="muted" id="w-status" role="status" hidden></p>
+    </form>
+  </section>
+
+  <footer>
+    <span>Die Berechnung stützt sich nur auf die Vergleichsangebote, die du eingibst. Die Checklisten sind allgemeine Hinweise und ersetzen keine Besichtigung durch eine Fachperson.</span>
+    <nav><a href="impressum.html">Impressum</a><a href="datenschutz.html">Datenschutz</a></nav>
+  </footer>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
