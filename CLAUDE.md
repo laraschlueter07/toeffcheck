@@ -14,11 +14,11 @@ Dieses Projekt ist ein **Business-Projekt**, kein Lernprojekt. Nicht unterrichte
 2. **Als Nächstes:** Schweizer Töff-Händler gewinnen, die ihren Bestand freiwillig als Feed liefern.
 3. **Später:** Deal-Alarme (Abo ca. 5 CHF/Monat) für Bikes unter Marktwert.
 
-**Wichtig:** Kein Scraping von MotoScout24, tutti, ricardo usw. (AGB). Daten nur über Händler-Feeds, offizielle Schnittstellen oder Nutzereingaben. Keine erfundenen Marktpreise auf der Seite.
+**Wichtig:** Kein Scraping von MotoScout24, tutti, ricardo, Facebook Marketplace usw. (AGB). Lara wollte am 27.10.2026 automatisches Suchen und Vergleichen; umgesetzt sind stattdessen Such-Links pro Plattform (MotoScout24 nur auf Markenebene `/de/s/mk-<marke>`, ricardo `/de/s/<q>`, tutti `/de/q/suche?query=`, Facebook `/marketplace/search/?query=`) und ein Textfeld, das kopierten Inserat-Text lokal auswertet (Preis, km, Jahrgang, Modell). Daten nur über Händler-Feeds, offizielle Schnittstellen oder Nutzereingaben. Keine erfundenen Marktpreise auf der Seite.
 
 **Öffentlicher Auftritt (Laras Vorgabe 27.10.2026):** Auf der Seite ist Töffcheck ein **Schulprojekt einer Privatperson, keine Firma**. Impressum, AGB und Datenschutz sind so formuliert. Keine Firmenbezeichnung, keine Gewinnabsicht behaupten oder bestreiten, keine Preise für den Deal-Alarm nennen.
 
-**Design und Texte:** Eigenständiger „Werkstatthandbuch“-Look (Papier #f2efe8, Tinte #121212, Startnummer-Gelb #ffc700, harte Kanten, Schriften Big Shoulders Display / IBM Plex Sans / IBM Plex Mono). Keine generischen Verläufe, Emojis oder Floskeln. Texte kurz, konkret, Schweizer Schreibweise, du-Form, kaum Gedankenstriche. Modellinfos nur, wenn sie belegbar sind; im Zweifel als Prüfpunkt formulieren statt als Tatsache.
+**Design und Texte:** Schwarz-Rot (Laras Wunsch 27.10.2026, kein Gelb mehr): Grund #0d0d0e, Schrift #f3f1ec, Rennrot #e1251b (Text-Rot #ff4a3d), harte Kanten, Schriften Big Shoulders Display / IBM Plex Sans / IBM Plex Mono. Logo: rotes Oval mit weissem Haken. Keine generischen Verläufe, Emojis oder Floskeln. Texte kurz, konkret, Schweizer Schreibweise, du-Form, kaum Gedankenstriche. Modellinfos nur, wenn sie belegbar sind; im Zweifel als Prüfpunkt formulieren statt als Tatsache.
 
 ## Ordner
 - `site/` – die Website (statisch, kein Build): `index.html` (Preis-Check, Ratgeber, Checkliste, FAQ, Warteliste), `modelle.html` + `liste.js` (Modellübersicht), `modelle.js` (**Modell-Datenbank, neue Modelle hier einfügen**), `app.js`, `style.css`, `impressum.html`, `agb.html`, `datenschutz.html`, `danke.html`, `404.html`, `robots.txt`, `sitemap.xml`, Icons, `img/` (Unsplash-Fotos, Bildnachweis im Impressum)
@@ -46,6 +46,7 @@ Dieses Projekt ist ein **Business-Projekt**, kein Lernprojekt. Nicht unterrichte
 - ⬜ Netlify erst abbauen, wenn GitHub Pages + Domain + Warteliste laufen (vorher allfällige Netlify-Formulareinträge exportieren). In Netlify steht `toeffcheck.ch` noch als Custom Domain.
 
 - ✅ **Relaunch 27.10.2026:** neues Design, 22 Modelle im Ratgeber (Stärken, Schwächen, Prüfpunkte, A2-Info), Typ-Checklisten für „Anderes Modell“, allgemeine Besichtigungs-Checkliste (statisches HTML, gut für SEO), Reifenalter-Rechner (DOT), anstehende Kosten, Verhandlungsziel, Ausreisser-Erkennung (Theil-Sen), Handy-Ergebnisleiste, Druckansicht. SEO: Titel/Description/Canonical/OG pro Seite, JSON-LD (WebSite, WebApplication, FAQPage, CollectionPage), robots.txt, sitemap.xml, 404-Seite. Neue Seite `agb.html`; Impressum/Datenschutz als Schulprojekt umgeschrieben.
+- ✅ **Update 27.10.2026 (zweite Runde):** Datenbank auf 108 Modelle erweitert (KTM, Yamaha, Ducati, Honda, Aprilia, Kawasaki, Suzuki, Triumph, BMW, plus Sportster); neuer Typ `enduro`; `a2: null` = unsicher (Seite zeigt „im Fahrzeugausweis prüfen“). Marken-Filter auf der Modellseite. Strasse und PLZ auf Laras Wunsch („auf Eigenverantwortung“) aus Impressum, AGB und Datenschutz entfernt; nur noch „Wädenswil, Schweiz“. In der öffentlichen Git-History steht die alte Adresse noch.
 - ⬜ Google Search Console: Lara verifiziert per TXT bei Hostpoint und reicht `sitemap.xml` ein (Anleitung in ANLEITUNG.md). Bei Sitemap-Änderungen `lastmod` nachführen.
 
 ## Als Nächstes geplant
