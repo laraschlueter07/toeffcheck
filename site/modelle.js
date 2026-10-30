@@ -961,11 +961,25 @@ const MODELLE = [
 
   /* ---------- Suzuki ---------- */
   {
-    id: "suzuki-gsx-r600-750", marke: "Suzuki", modell: "GSX-R600 / GSX-R750", von: 1996, bis: 2018, typ: "supersport",
-    motor: "599 oder 750 cm³, Vierzylinder", a2: false,
-    kurz: "Klassische Suzuki-Supersportler. Die 750 ist eine seltene Mittelklasse zwischen 600 und 1000.",
+    id: "suzuki-gsx-r600", marke: "Suzuki", modell: "GSX-R600", von: 1997, bis: 2018, typ: "supersport",
+    motor: "599 cm³, Vierzylinder", a2: false,
+    kurz: "Klassischer Suzuki-Supersportler der 600er-Klasse.",
     hinweis: "In Europa seit einigen Jahren nicht mehr neu erhältlich.",
-    plus: ["Drehfreudige, kräftige Motoren", "Viele Teile verfügbar", "Grosse Szene"],
+    plus: ["Drehfreudiger, kräftiger Motor", "Viele Teile verfügbar", "Grosse Szene"],
+    minus: ["Viele Exemplare mit Rennstrecken-Vergangenheit", "Sportliche Sitzposition"],
+    pruefen: [
+      "Lichtmaschine und Regler: Ladespannung messen. Bei Suzukis dieser Zeit ein bekanntes Thema.",
+      "Rennstrecken- und Sturzspuren.",
+      "Kupplung bei der Probefahrt prüfen.",
+      "Servicebelege inklusive Ventilspiel."
+    ]
+  },
+  {
+    id: "suzuki-gsx-r750", marke: "Suzuki", modell: "GSX-R750", von: 1985, bis: 2018, typ: "supersport",
+    motor: "750 cm³, Vierzylinder", a2: false,
+    kurz: "Klassischer Suzuki-Supersportler. Die 750 ist eine seltene Mittelklasse zwischen 600 und 1000.",
+    hinweis: "In Europa seit einigen Jahren nicht mehr neu erhältlich. Zwischen den frühen und den letzten Jahrgängen liegen über 30 Jahre, vergleiche deshalb nur ähnliche Jahrgänge.",
+    plus: ["Drehfreudiger, kräftiger Motor", "Viele Teile verfügbar", "Grosse Szene"],
     minus: ["Viele Exemplare mit Rennstrecken-Vergangenheit", "Sportliche Sitzposition"],
     pruefen: [
       "Lichtmaschine und Regler: Ladespannung messen. Bei Suzukis dieser Zeit ein bekanntes Thema.",

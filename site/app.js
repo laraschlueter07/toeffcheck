@@ -22,7 +22,10 @@ function fillModels() {
 fillModels();
 $("w-canton").innerHTML = CANTONS.map(c => `<option${c === "ZH" ? " selected" : ""}>${c}</option>`).join("");
 
-const start = new URLSearchParams(location.search).get("modell");
+// Frühere Sammeleinträge: Alte Direktlinks führen zum ersten neuen Eintrag.
+const OLD_IDS = { "suzuki-gsx-r600-750": "suzuki-gsx-r600" };
+const rawStart = new URLSearchParams(location.search).get("modell");
+const start = OLD_IDS[rawStart] ?? rawStart;
 $("model").value = start === "andere" || MODELLE.some(m => m.id === start) ? start : "yamaha-r7";
 const currentModel = () => MODELLE.find(m => m.id === $("model").value) || null;
 
@@ -104,9 +107,11 @@ function update() {
   $("eff-row").hidden = true; tip.hidden = true; $("copy").disabled = true;
   if (r.status !== "ok") {
     badge.className = "badge none";
-    badge.textContent = label(r.reason === "too_few" || r.reason === "km_missing" ? "Zu wenig Daten" : "Keine Bewertung");
+    badge.textContent = label(r.reason === "too_few" || r.reason === "km_missing" ? "Zu wenig Daten"
+      : r.reason === "unreliable_scatter" ? "Keine zuverlässige Bewertung" : "Keine Bewertung");
     ["diff", "est", "range", "slope"].forEach(id => $(id).textContent = "–");
-    $("verdict-text").textContent = r.message;
+    $("verdict-text").textContent = r.priceSpan
+      ? `${r.message} Deine Angebote liegen zwischen ${chf(r.priceSpan.low)} und ${chf(r.priceSpan.high)}.` : r.message;
     $("mark").style.left = "50%"; $("mark").classList.add("off");
     renderWarnings(warn);
     return;

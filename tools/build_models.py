@@ -9,7 +9,6 @@ import collections
 import html
 import json
 import re
-import shutil
 import sys
 from pathlib import Path
 
@@ -311,11 +310,18 @@ def main():
 
     for m in models:
         write(OUT / m["id"] / "index.html", page(m, models))
-    # Seiten gelöschter Modelle entfernen. Ein ganzer Neuaufbau scheitert unter OneDrive an Dateisperren.
+    # Seiten gelöschter Modelle entfernen. Unter OneDrive kann der leere Ordner gesperrt bleiben,
+    # das ist harmlos: Git und GitHub Pages veröffentlichen keine leeren Ordner.
     current = {m["id"] for m in models}
     for folder in OUT.iterdir():
         if folder.is_dir() and folder.name not in current:
-            shutil.rmtree(folder)
+            for file in folder.rglob("*"):
+                if file.is_file():
+                    file.unlink()
+            try:
+                folder.rmdir()
+            except OSError:
+                print(f"Hinweis: Leerer Ordner bleibt vorerst bestehen: {folder.name}")
 
     listing = SITE / "modelle.html"
     src = listing.read_text(encoding="utf-8")

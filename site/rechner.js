@@ -69,7 +69,8 @@ export const REASONS = {
   too_few: "Trag mindestens drei gültige Vergleichsangebote ein.",
   km_out_of_range: "Der Kilometerstand liegt zu weit ausserhalb deiner Vergleichsangebote. Eine Schätzung wäre hier geraten.",
   implausible_estimate: "Aus diesen Angeboten ergibt sich kein plausibler Preis. Prüf die Eingaben oder ergänze Angebote mit anderen Kilometerständen.",
-  year_mismatch: "Die meisten Vergleichsangebote sind mehr als zwei Jahrgänge entfernt. Such Angebote mit ähnlichem Jahrgang."
+  year_mismatch: "Die meisten Vergleichsangebote sind mehr als zwei Jahrgänge entfernt. Such Angebote mit ähnlichem Jahrgang.",
+  unreliable_scatter: "Drei Angebote, die so stark streuen, reichen für kein Urteil. Ergänze weitere vergleichbare Angebote."
 };
 
 // Manueller Preisvergleich. rows: [{price, km, year, example}]
@@ -106,6 +107,10 @@ export function manualCheck({ rows, km, ask, extras = 0, year = null, model = nu
   if (r.outsideData) warnings.push("Der Kilometerstand liegt etwas ausserhalb deiner Angebote. Gerechnet wird mit dem Wert am Rand, die Schätzung ist unsicherer.");
   const expected = c => (r.slope === null ? r.est : r.intercept + r.slope * c.km);
   if (Math.max(...clean.map(c => Math.abs(c.price - expected(c)) / r.est)) > WIDE_SCATTER) {
+    if (clean.length <= 3) {
+      const prices = clean.map(c => c.price);
+      return { ...refuse("unreliable_scatter"), outliers: outliers.map(o => o.row), priceSpan: { low: Math.min(...prices), high: Math.max(...prices) } };
+    }
     warnings.push("Die Angebote streuen stark, das Urteil ist deshalb unsicher. Prüf, ob Version und Ausstattung wirklich vergleichbar sind.");
   }
 
