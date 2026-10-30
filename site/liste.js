@@ -18,7 +18,7 @@ function card(m) {
       <ul class="plus">${m.plus.slice(0, 2).map(t => `<li>${esc(t)}</li>`).join("")}</ul>
       <ul class="minus">${m.minus.slice(0, 2).map(t => `<li>${esc(t)}</li>`).join("")}</ul>
     </div>
-    <footer><a href="./?modell=${m.id}#ratgeber">Checkliste und Preis-Check</a></footer>
+    <footer><a href="modell/${m.id}/">Zur Modellseite</a></footer>
   </article>`;
 }
 

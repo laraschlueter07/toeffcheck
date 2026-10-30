@@ -22,6 +22,8 @@ Dieses Projekt ist ein **Business-Projekt**, kein Lernprojekt. Nicht unterrichte
 
 ## Ordner
 - `site/` – die Website (statisch, kein Build): `index.html` (Preis-Check, Ratgeber, Checkliste, FAQ, Warteliste), `modelle.html` + `liste.js` (Modellübersicht), `modelle.js` (**Modell-Datenbank, neue Modelle hier einfügen**), `app.js`, `style.css`, `impressum.html`, `agb.html`, `datenschutz.html`, `danke.html`, `404.html`, `robots.txt`, `sitemap.xml`, Icons, `img/` (Unsplash-Fotos, Bildnachweis im Impressum)
+- `site/modell/<id>/` – generierte Modellseiten, nicht von Hand ändern. `tools/build_models.py` erzeugt sie, die Liste in `modelle.html` und `sitemap.xml` aus `modelle.js`; `tools/check_site.py` prüft Links, Canonicals, Titel und Sitemap. Beides läuft auch im Deploy. Keine Build-Pakete, nur Python-Standardbibliothek.
+- `site/rechner.js` – Preisrechnung, identische Kopie von `worker/src/rechner.js`; bei Änderungen beide angleichen (`check_site.py` vergleicht sie, solange `worker/` existiert).
 - `ANLEITUNG.md` – Schritt-für-Schritt für GitHub, Formspree und DNS
 - `.github/workflows/pages.yml` – veröffentlicht `site/` auf GitHub Pages
 - `.claude/launch.json` – lokaler Testserver (`python -m http.server` auf Port 8000)
@@ -48,6 +50,8 @@ Dieses Projekt ist ein **Business-Projekt**, kein Lernprojekt. Nicht unterrichte
 - ✅ **Relaunch 27.10.2026:** neues Design, 22 Modelle im Ratgeber (Stärken, Schwächen, Prüfpunkte, A2-Info), Typ-Checklisten für „Anderes Modell“, allgemeine Besichtigungs-Checkliste (statisches HTML, gut für SEO), Reifenalter-Rechner (DOT), anstehende Kosten, Verhandlungsziel, Ausreisser-Erkennung (Theil-Sen), Handy-Ergebnisleiste, Druckansicht. SEO: Titel/Description/Canonical/OG pro Seite, JSON-LD (WebSite, WebApplication, FAQPage, CollectionPage), robots.txt, sitemap.xml, 404-Seite. Neue Seite `agb.html`; Impressum/Datenschutz als Schulprojekt umgeschrieben.
 - ✅ **Update 27.10.2026 (zweite Runde):** Datenbank auf 108 Modelle erweitert (KTM, Yamaha, Ducati, Honda, Aprilia, Kawasaki, Suzuki, Triumph, BMW, plus Sportster); neuer Typ `enduro`; `a2: null` = unsicher (Seite zeigt „im Fahrzeugausweis prüfen“). Marken-Filter auf der Modellseite. Strasse und PLZ auf Laras Wunsch („auf Eigenverantwortung“) aus Impressum, AGB und Datenschutz entfernt; nur noch „Wädenswil, Schweiz“. In der öffentlichen Git-History steht die alte Adresse noch.
 - ⬜ Google Search Console: Lara verifiziert per TXT bei Hostpoint und reicht `sitemap.xml` ein (Anleitung in ANLEITUNG.md). Bei Sitemap-Änderungen `lastmod` nachführen.
+
+- Branch `verbesserung/preisrechner-modellseiten` (30.10.2026, lokal): Rechner auf `rechner.js` umgestellt, Beispielwerte markiert, 108 Modellseiten, davon nur Seiten mit genug eigenem Text indexierbar. Noch nicht gepusht. `prototype/` und `worker/` bleiben vorerst separat und sind nicht committet.
 
 ## Als Nächstes geplant
 1. Formspree-ID eintragen, Lara macht Testeintrag

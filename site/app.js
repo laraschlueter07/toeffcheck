@@ -1,11 +1,11 @@
 // Töffcheck Startseite: Preis-Check, Modell-Ratgeber, Reifenalter und Warteliste.
+import { manualCheck, exampleRows, num } from "./rechner.js";
+
 const $ = id => document.getElementById(id);
 const chf = n => "CHF " + Math.round(n).toLocaleString("de-CH");
 const zahl = n => Math.round(n).toLocaleString("de-CH");
-const auf50 = n => Math.round(n / 50) * 50;
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 
-const EXAMPLE = [[9400, 3200, 2023], [8700, 9800, 2022], [9100, 5400, 2023], [8300, 14500, 2022]];
 const CANTONS = ["AG","AI","AR","BE","BL","BS","FR","GE","GL","GR","JU","LU","NE","NW","OW","SG","SH","SO","SZ","TG","TI","UR","VD","VS","ZG","ZH"];
 const THIS_YEAR = new Date().getFullYear();
 
@@ -28,37 +28,56 @@ const currentModel = () => MODELLE.find(m => m.id === $("model").value) || null;
 
 // ---------- Vergleichsangebote ----------
 let rowId = 0;
-function addRow(price = "", km = "", year = "") {
+function addRow(price = "", km = "", year = "", example = false) {
   const i = ++rowId;
   const row = document.createElement("div");
   row.className = "comp-row";
-  row.innerHTML = `<input type="number" inputmode="numeric" min="0" step="50" aria-label="Preis Angebot ${i}" value="${price}">
-    <input type="number" inputmode="numeric" min="0" step="100" aria-label="Kilometer Angebot ${i}" value="${km}">
-    <input type="number" inputmode="numeric" min="1970" max="${THIS_YEAR + 1}" aria-label="Jahrgang Angebot ${i}" placeholder="opt." value="${year}">
+  const cls = example ? ' class="is-example"' : "";
+  row.innerHTML = `<input${cls} type="number" inputmode="numeric" min="0" step="50" aria-label="Preis Angebot ${i}" value="${price}">
+    <input${cls} type="number" inputmode="numeric" min="0" step="100" aria-label="Kilometer Angebot ${i}" value="${km}">
+    <input${cls} type="number" inputmode="numeric" min="1970" max="${THIS_YEAR + 1}" aria-label="Jahrgang Angebot ${i}" placeholder="opt." value="${year}">
     <button type="button" class="icon-btn" aria-label="Angebot ${i} entfernen">×</button>`;
+  row.dataset.example = example ? "1" : "";
   row.querySelector("button").onclick = () => { row.remove(); update(); };
   $("comp-rows").appendChild(row);
   return row;
 }
-EXAMPLE.forEach(e => addRow(...e));
 
-function comps() {
-  return [...$("comp-rows").children].map(r => {
-    const [p, k, y] = r.querySelectorAll("input");
-    return { p: parseFloat(p.value), k: parseFloat(k.value), y: parseInt(y.value, 10), row: r };
-  }).filter(c => c.p > 0 && c.k >= 0);
+// Beispielwerte sind markiert und dürfen nie als echte Eingaben gelten.
+const AD_FIELDS = ["year", "km", "ask"];
+const exampleFields = new Set();
+function markAdExample() {
+  AD_FIELDS.forEach(id => { exampleFields.add(id); $(id).classList.add("is-example"); });
+}
+function setAdReal(id) {
+  exampleFields.delete(id); $(id).classList.remove("is-example");
+}
+function removeExampleRows() {
+  [...$("comp-rows").children].filter(r => r.dataset.example).forEach(r => r.remove());
+  while ($("comp-rows").children.length < 3) addRow();
+}
+function removeExamples() {
+  removeExampleRows();
+  [...exampleFields].forEach(id => { $(id).value = ""; setAdReal(id); });
+}
+function setRowReal(row) {
+  row.dataset.example = "";
+  row.querySelectorAll("input").forEach(i => i.classList.remove("is-example"));
 }
 
-// Preis linear über den km-Stand schätzen; ohne sinkenden Trend: Median.
-function estimate(cs, km) {
-  const n = cs.length;
-  const mk = cs.reduce((s, c) => s + c.k, 0) / n, mp = cs.reduce((s, c) => s + c.p, 0) / n;
-  const sxx = cs.reduce((s, c) => s + (c.k - mk) ** 2, 0);
-  const slope = sxx > 0 ? cs.reduce((s, c) => s + (c.k - mk) * (c.p - mp), 0) / sxx : 0;
-  if (slope < 0) return { est: mp + slope * (km - mk), slope };
-  const sorted = cs.map(c => c.p).sort((a, b) => a - b);
-  const med = n % 2 ? sorted[(n - 1) / 2] : (sorted[n / 2 - 1] + sorted[n / 2]) / 2;
-  return { est: med, slope: null };
+if (start && $("model").value === start) {
+  AD_FIELDS.forEach(id => { $(id).value = ""; });
+  for (let i = 0; i < 3; i++) addRow();
+} else {
+  exampleRows().forEach(e => addRow(e.price, e.km, e.year, true));
+  markAdExample();
+}
+
+function comps() {
+  return [...$("comp-rows").children].map(el => {
+    const [p, k, y] = el.querySelectorAll("input");
+    return { price: p.value, km: k.value, year: y.value, example: !!el.dataset.example, el };
+  });
 }
 
 const extras = () => [...document.querySelectorAll(".extra")].reduce((s, i) => s + (parseFloat(i.value) || 0), 0);
@@ -66,94 +85,78 @@ const extras = () => [...document.querySelectorAll(".extra")].reduce((s, i) => s
 // ---------- Ergebnis ----------
 let summary = "";
 function update() {
-  const cs = comps();
-  const km = parseFloat($("km").value) || 0, ask = parseFloat($("ask").value) || 0, year = parseInt($("year").value, 10);
-  const add = extras(), m = currentModel();
-  const warn = [];
-  cs.forEach(c => c.row.classList.remove("outlier"));
-  $("n").textContent = cs.length;
-  $("est-label").textContent = `Fairer Preis bei ${zahl(km)} km`;
+  const rows = comps(), m = currentModel();
+  const km = num($("km").value), ask = num($("ask").value), year = num($("year").value), add = extras();
+  const r = manualCheck({ rows, km, ask, extras: add, year, model: m ? { year_from: m.von, year_to: m.bis } : null });
+  const isExample = r.isExample || exampleFields.size > 0;
+  const warn = [...r.warnings];
+  rows.forEach(c => c.el.classList.toggle("outlier", r.outliers.includes(c)));
+  $("example-note").hidden = !isExample;
+  $("n").textContent = r.usableCount;
+  $("est-label").textContent = km !== null && km >= 0 ? `Fairer Preis bei ${zahl(km)} km` : "Fairer Preis";
+  const label = text => (isExample ? `Beispiel: ${text}` : text);
+  const badge = $("badge"), tip = $("deal-tip");
 
-  // Jahrgang passt nicht zum Modell
-  if (m && year && (year < m.von || (m.bis && year > m.bis + 1)))
-    warn.push(`Die ${m.modell} gibt es laut Ratgeber ${m.bis ? `von ${m.von} bis ${m.bis}` : `seit ${m.von}`}. Stimmt der Jahrgang? Vergleich ihn mit dem Fahrzeugausweis.`);
+  const mfk = $("mfk").value;
+  if (mfk === "due") warn.push({ info: "MFK fällig oder unbekannt: Rechne mit Kosten für die Vorbereitung und mögliche Mängel. Trag sie unter C ein." });
+  if (mfk === "fresh") warn.push({ info: "Frisch ab MFK ist ein Plus: Die Prüfung ist bestanden, Mängel sind behoben. Lass dir den Prüfbericht zeigen." });
 
-  const badge = $("badge");
-  if (cs.length < 3 || !ask) {
-    badge.className = "badge none"; badge.textContent = "Zu wenig Daten";
+  $("eff-row").hidden = true; tip.hidden = true; $("copy").disabled = true;
+  if (r.status !== "ok") {
+    badge.className = "badge none";
+    badge.textContent = label(r.reason === "too_few" || r.reason === "km_missing" ? "Zu wenig Daten" : "Keine Bewertung");
     ["diff", "est", "range", "slope"].forEach(id => $(id).textContent = "–");
-    $("verdict-text").textContent = cs.length < 3 ? `Trag mindestens drei Vergleichsangebote ein (bis jetzt ${cs.length}).` : "Trag den verlangten Preis ein.";
+    $("verdict-text").textContent = r.message;
     $("mark").style.left = "50%"; $("mark").classList.add("off");
-    $("eff-row").hidden = true; $("deal-tip").hidden = true; $("copy").disabled = true;
     renderWarnings(warn);
     return;
   }
 
-  const { est, slope } = estimate(cs, km);
-  const eff = ask + add;
-  const d = (eff - est) / est;
-  const delta = chf(Math.abs(eff - est));
+  $("est").textContent = chf(r.est);
+  $("range").textContent = chf(r.low) + " – " + chf(r.high);
+  $("slope").textContent = r.slopePer1000 === null ? "kein Trend" : chf(r.slopePer1000);
+  if (!r.verdict) {
+    badge.className = "badge none"; badge.textContent = label("Kein Urteil");
+    $("diff").textContent = "–";
+    $("verdict-text").textContent = "Trag einen realistischen verlangten Preis ein, dann gibt es ein Urteil.";
+    $("mark").style.left = "50%"; $("mark").classList.add("off");
+    renderWarnings(warn);
+    return;
+  }
+
+  const eff = r.effective, d = r.diff;
+  const delta = chf(Math.abs(eff - r.est));
   $("mark").classList.remove("off");
-  $("est").textContent = chf(est);
-  $("range").textContent = chf(est * 0.92) + " – " + chf(est * 1.08);
-  $("slope").textContent = slope === null ? "kein Trend" : chf(-slope * 1000);
   $("eff-row").hidden = !add; $("eff").textContent = chf(eff);
   const pct = (Math.abs(d) * 100).toFixed(1);
   $("diff").textContent = (pct === "0.0" ? "" : d > 0 ? "+" : "−") + pct.replace(".", ",") + " %";
   const what = add ? "Mit den anstehenden Kosten liegt das Angebot" : "Das Angebot liegt";
-
-  let verdict;
-  if (d <= -0.08) {
-    verdict = "Guter Deal"; badge.className = "badge good";
-    $("verdict-text").textContent = `${what} ${delta} unter dem fairen Preis. Schnell besichtigen und genau hinschauen, warum es so günstig ist.`;
-  } else if (d >= 0.08) {
-    verdict = "Zu teuer"; badge.className = "badge bad";
-    $("verdict-text").textContent = `${what} ${delta} über dem fairen Preis. Mit deinen Vergleichsangeboten verhandeln.`;
-  } else {
-    verdict = "Fair"; badge.className = "badge fair";
-    $("verdict-text").textContent = `${what} nah am fairen Preis (${d > 0 ? "+" : "−"}${delta}). Zustand und Belege entscheiden.`;
-  }
-  badge.textContent = verdict;
+  const verdict = { good: "Guter Deal", fair: "Fair", high: "Zu teuer" }[r.verdict];
+  badge.className = "badge " + { good: "good", fair: "fair", high: "bad" }[r.verdict];
+  badge.textContent = label(verdict);
+  $("verdict-text").textContent = isExample ? "Das ist nur eine Beispielrechnung. Trag dein Inserat und echte Vergleichsangebote ein."
+    : r.verdict === "good" ? `${what} ${delta} unter dem fairen Preis. Schnell besichtigen und genau hinschauen, warum es so günstig ist.`
+    : r.verdict === "high" ? `${what} ${delta} über dem fairen Preis. Mit deinen Vergleichsangeboten verhandeln.`
+    : `${what} nah am fairen Preis (${d > 0 ? "+" : "−"}${delta}). Zustand und Belege entscheiden.`;
   $("mark").style.left = Math.min(100, Math.max(0, 50 + d * 200)) + "%";
 
   // Verhandlungshilfe: fairer Preis minus das, was nach dem Kauf noch ansteht
-  const target = auf50(Math.min(ask, est - add));
-  const tip = $("deal-tip");
-  tip.hidden = false;
-  if (target < ask - 50) {
-    tip.innerHTML = `Verhandlungsziel: <strong>${chf(target)}</strong>. Steig mit etwa <strong>${chf(auf50(target * 0.95))}</strong> ein und begründe es mit deinen Vergleichsangeboten${add ? " und den anstehenden Kosten" : ""}.`;
-  } else {
+  if (!isExample && r.target !== null) {
+    tip.hidden = false;
+    tip.innerHTML = `Verhandlungsziel: <strong>${chf(r.target)}</strong>. Steig mit etwa <strong>${chf(r.opening)}</strong> ein und begründe es mit deinen Vergleichsangeboten${add ? " und den anstehenden Kosten" : ""}.`;
+  } else if (!isExample && r.verdict !== "high") {
+    tip.hidden = false;
     tip.textContent = "Der Preis liegt schon im fairen Bereich oder darunter. Verhandeln kannst du trotzdem, wichtiger ist jetzt eine gründliche Besichtigung.";
   }
-
-  // Hinweise zur Qualität der Daten
-  if (slope === null) warn.push({ info: "Bei deinen Angeboten sinkt der Preis nicht mit den Kilometern. Töffcheck nimmt deshalb den mittleren Preis (Median)." });
-  const ks = cs.map(c => c.k), kmin = Math.min(...ks), kmax = Math.max(...ks), spread = Math.max(kmax - kmin, 2000);
-  if (km < kmin - spread * 0.25 || km > kmax + spread * 0.25)
-    warn.push("Der Kilometerstand liegt weit ausserhalb deiner Vergleichsangebote. Die Schätzung ist dann unsicher. Such Angebote mit ähnlichem Kilometerstand.");
-  // Ausreisser: Abstand zu einer robusten Linie (Theil-Sen), die sich von einzelnen Ausreissern kaum ziehen lässt
-  const median = a => { const s = [...a].sort((x, y) => x - y), n = s.length; return n % 2 ? s[(n - 1) / 2] : (s[n / 2 - 1] + s[n / 2]) / 2; };
-  const slopes = [];
-  cs.forEach((a, i) => cs.slice(i + 1).forEach(b => { if (a.k !== b.k) slopes.push((b.p - a.p) / (b.k - a.k)); }));
-  const rs = slopes.length ? median(slopes) : 0, rb = median(cs.map(c => c.p - rs * c.k));
-  const outliers = cs.length < 4 ? [] : cs.filter(c => Math.abs(c.p - (rb + rs * c.k)) / (rb + rs * c.k) > 0.25);
-  outliers.forEach(c => c.row.classList.add("outlier"));
-  if (outliers.length) warn.push(`${outliers.length === 1 ? "Ein Angebot weicht" : outliers.length + " Angebote weichen"} stark von den anderen ab (rot markiert). Ist es wirklich vergleichbar, zum Beispiel gleiche Version und Ausstattung?`);
-  if (year) {
-    const far = cs.filter(c => c.y && Math.abs(c.y - year) > 2).length;
-    if (far) warn.push(`${far === 1 ? "Ein Angebot ist" : far + " Angebote sind"} mehr als zwei Jahrgänge älter oder jünger. Das kann den fairen Preis verzerren.`);
-  }
-  const mfk = $("mfk").value;
-  if (mfk === "due") warn.push({ info: "MFK fällig oder unbekannt: Rechne mit Kosten für die Vorbereitung und mögliche Mängel. Trag sie unter C ein." });
-  if (mfk === "fresh") warn.push({ info: "Frisch ab MFK ist ein Plus: Die Prüfung ist bestanden, Mängel sind behoben. Lass dir den Prüfbericht zeigen." });
   renderWarnings(warn);
 
+  if (isExample) return; // Beispielrechnungen lassen sich nicht als Ergebnis kopieren
   const name = m ? `${m.marke} ${m.modell}` : "Anderes Modell";
   summary = [
     `Töffcheck: ${name}, ${year || "?"}, ${zahl(km)} km`,
     `Verlangt: ${chf(ask)}${add ? `, mit anstehenden Kosten ${chf(eff)}` : ""}`,
-    `Fairer Preis: ${chf(est)} (Bereich ${chf(est * 0.92)} – ${chf(est * 1.08)})`,
-    `Urteil: ${verdict} (${$("diff").textContent}), ${cs.length} Vergleichsangebote`,
+    `Fairer Preis: ${chf(r.est)} (Bereich ${chf(r.low)} – ${chf(r.high)})`,
+    `Urteil: ${verdict} (${$("diff").textContent}), ${r.usableCount} Vergleichsangebote`,
     location.origin + location.pathname + "?modell=" + (m ? m.id : "")
   ].join("\n");
   $("copy").disabled = false;
@@ -203,6 +206,8 @@ function renderGuide() {
   $("rat-checks").innerHTML = m ? m.pruefen.map(checkItem).join("") : "";
   $("rat-typ-title").textContent = `Typisch für ${TYPEN[typ].name === "Roller" ? "Roller" : "die Töff-Art " + TYPEN[typ].name}`;
   $("rat-typ").innerHTML = TYPEN[typ].pruefen.map(checkItem).join("");
+  $("rat-page").hidden = !m;
+  if (m) $("rat-page").href = `modell/${m.id}/`;
   const rows = m ? [
     ["Baujahre", jahreText(m)],
     ["Art", TYPEN[m.typ].name],
@@ -213,6 +218,7 @@ function renderGuide() {
 }
 
 function onModelChange() {
+  removeExamples();
   const m = currentModel();
   const url = new URL(location.href);
   if (m) url.searchParams.set("modell", m.id); else url.searchParams.delete("modell");
@@ -299,37 +305,43 @@ function pasteSummary(r) {
 $("paste-comp").onclick = () => {
   const r = parseInserat($("paste").value), out = $("paste-out");
   if (!r.price && r.km == null) { out.textContent = "Darin habe ich weder Preis noch Kilometer gefunden. Trag die Werte von Hand ein."; return; }
+  removeExampleRows();
   const empty = [...$("comp-rows").children].find(row => [...row.querySelectorAll("input")].every(i => !i.value));
   const row = empty || addRow();
   const [p, k, y] = row.querySelectorAll("input");
   p.value = r.price || ""; k.value = r.km ?? ""; y.value = r.year || "";
   out.textContent = `Übernommen: ${pasteSummary(r)}. Prüf die Werte in der Tabelle.` + (!r.price ? " Der Preis fehlt noch." : r.km == null ? " Die Kilometer fehlen noch." : "");
-  $("paste").value = ""; $("example-note").hidden = true;
+  $("paste").value = "";
   (!r.price ? p : r.km == null ? k : row).focus?.();
   update();
 };
 $("paste-ad").onclick = () => {
   const r = parseInserat($("paste").value), out = $("paste-out");
   if (!r.price && r.km == null && !r.year && !r.model) { out.textContent = "Darin habe ich nichts erkannt. Trag die Werte von Hand ein."; return; }
-  if (r.price) $("ask").value = r.price;
-  if (r.km != null) $("km").value = r.km;
-  if (r.year) $("year").value = r.year;
+  if (r.price) { $("ask").value = r.price; setAdReal("ask"); }
+  if (r.km != null) { $("km").value = r.km; setAdReal("km"); }
+  if (r.year) { $("year").value = r.year; setAdReal("year"); }
   if (r.model && r.model.id !== $("model").value) { $("model").value = r.model.id; onModelChange(); }
   out.textContent = `Oben übernommen: ${[r.model ? r.model.marke + " " + r.model.modell : null, pasteSummary(r)].filter(Boolean).join(" · ")}. Prüf die Werte.`;
-  $("paste").value = ""; $("example-note").hidden = true;
+  $("paste").value = "";
   update();
 };
 
 document.addEventListener("input", e => {
-  if (e.target.closest(".tool")) { $("example-note").hidden = true; update(); }
+  if (!e.target.closest(".tool")) return;
+  if (AD_FIELDS.includes(e.target.id)) setAdReal(e.target.id);
+  const row = e.target.closest(".comp-row");
+  if (row) setRowReal(row);
+  update();
 });
 $("model").addEventListener("change", onModelChange);
 $("typ").addEventListener("change", () => { renderGuide(); update(); });
 $("add-comp").onclick = () => { addRow().querySelector("input").focus(); update(); };
 $("clear").onclick = () => {
   $("comp-rows").innerHTML = ""; for (let i = 0; i < 3; i++) addRow();
+  removeExamples();
   $("ask").value = ""; $("km").value = ""; document.querySelectorAll(".extra").forEach(i => i.value = "");
-  $("example-note").hidden = true; update();
+  update();
 };
 $("print").onclick = () => window.print();
 if (start && $("model").value === start) onModelChange(); else { renderGuide(); update(); }
