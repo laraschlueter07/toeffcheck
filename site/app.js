@@ -1,5 +1,6 @@
 // Töffcheck Startseite: Preis-Check, Modell-Ratgeber, Reifenalter und Warteliste.
 import { manualCheck, exampleRows, num } from "./rechner.js";
+import { parseDateText, parseMfkText, stripMfkText, parseFirstRegistration, assessMfk, mfkSummary, formatDate } from "./mfk.js";
 
 const $ = id => document.getElementById(id);
 const chf = n => "CHF " + Math.round(n).toLocaleString("de-CH");
@@ -21,6 +22,7 @@ function fillModels() {
 }
 fillModels();
 $("w-canton").innerHTML = CANTONS.map(c => `<option${c === "ZH" ? " selected" : ""}>${c}</option>`).join("");
+$("mfk-canton").innerHTML += CANTONS.map(c => `<option>${c}</option>`).join("");
 
 // Frühere Sammeleinträge: Alte Direktlinks führen zum ersten neuen Eintrag.
 const OLD_IDS = { "suzuki-gsx-r600-750": "suzuki-gsx-r600" };
@@ -100,9 +102,9 @@ function update() {
   const label = text => (isExample ? `Beispiel: ${text}` : text);
   const badge = $("badge"), tip = $("deal-tip");
 
-  const mfk = $("mfk").value;
-  if (mfk === "due") warn.push({ info: "MFK fällig oder unbekannt: Rechne mit Kosten für die Vorbereitung und mögliche Mängel. Trag sie unter C ein." });
-  if (mfk === "fresh") warn.push({ info: "Frisch ab MFK ist ein Plus: Die Prüfung ist bestanden, Mängel sind behoben. Lass dir den Prüfbericht zeigen." });
+  const mfkResult = renderMfk();
+  const mfkLine = mfkSummary(mfkResult);
+  if (mfkLine) warn.push(mfkLine.warn ?? { info: mfkLine.info });
 
   $("eff-row").hidden = true; tip.hidden = true; $("copy").disabled = true;
   if (r.status !== "ok") {
@@ -163,9 +165,65 @@ function update() {
     `Verlangt: ${chf(ask)}${add ? `, mit anstehenden Kosten ${chf(eff)}` : ""}`,
     `Fairer Preis: ${chf(r.est)} (Bereich ${chf(r.low)} – ${chf(r.high)})`,
     `Urteil: ${verdict} (${$("diff").textContent}), ${r.usableCount} Vergleichsangebote`,
+    ...(mfkLine ? [`MFK: ${mfkResult.label}, letzte MFK ${mfkResult.lastText}, Datenqualität: ${mfkResult.reliability.label}, keine amtliche Auskunft`] : []),
     location.origin + location.pathname + "?modell=" + (m ? m.id : "")
   ].join("\n");
   $("copy").disabled = false;
+}
+
+// ---------- MFK-Check ----------
+// Aus dem Inserat übernommene Hinweise, die kein eigenes Eingabefeld haben.
+const MFK_TEXT_EMPTY = { conflict: false, nextDue: null, ambiguous: false };
+let mfkFromText = MFK_TEXT_EMPTY;
+let mfkShown = "";
+const ASTRA_VETERAN = "https://www.astra.admin.ch/dam/de/sd-web/5Xwv1p543cGt/Weisungen%20f%C3%BCr%20Veteranenfahrzeuge.pdf";
+function renderMfk() {
+  const dateOf = id => parseDateText($(id).value);
+  const year = exampleFields.has("year") ? null : num($("year").value);
+  const r = assessMfk({
+    firstReg: dateOf("mfk-first"), lastMfk: dateOf("mfk-last"), claim: $("mfk").value, source: $("mfk-source").value, canton: $("mfk-canton").value, veteran: $("mfk-veteran").value,
+    year: Number.isInteger(year) ? year : null, ...mfkFromText
+  });
+  const invalid = ["mfk-first", "mfk-last"].filter(id => $(id).value.trim() && !dateOf(id));
+  const key = JSON.stringify([r, invalid]);
+  if (key === mfkShown) return r;
+  mfkShown = key; // Nur bei Änderungen neu zeichnen, damit abgehakte Fragen erhalten bleiben
+  const list = items => `<ul class="mfk-list">${items.map(t => `<li>${esc(t)}</li>`).join("")}</ul>`;
+  const bad = invalid.length ? `<p class="note">Dieses Datum verstehe ich nicht: ${invalid.map(id => esc($(id).value.trim())).join(", ")}. Schreib es so: 04.2021 oder 2021.</p>` : "";
+  if (r.status === "empty") { $("mfk-out").innerHTML = bad; return r; }
+  // Grün gibt es nur, wenn jemand das Dokument gesehen hat
+  const cls = r.risk === "low" && r.evidence !== "document" ? "none" : { low: "good", medium: "fair", high: "bad", unknown: "none" }[r.risk];
+  const claimed = r.evidence === "seller" && r.lastMfk ? " (laut Angabe, nicht bestätigt)" : "";
+  $("mfk-out").innerHTML = `${bad}<div><span class="badge ${cls}">${esc(r.label)}</span></div>
+    <div class="mfk-axes">
+      <div class="mfk-axis"><span>MFK-Risiko (Einschätzung)</span><strong>${esc(r.riskLabel)}</strong></div>
+      <div class="mfk-axis ${r.reliability.level}"><span>Datenqualität</span><strong>${esc(r.reliability.label)}</strong><small>${esc(r.reliability.detail)}</small></div>
+    </div>
+    <dl class="figures">
+      <div><dt>Erste Inverkehrsetzung</dt><dd>${esc(r.firstText)}</dd></div>
+      <div><dt>Letzte MFK${claimed}</dt><dd>${esc(r.lastText)}</dd></div>
+      <div><dt>Nächste Prüfung (${esc(r.next ? r.next.label : "Schätzung")})</dt><dd>${esc(r.next ? r.next.text : "nicht einschätzbar")}</dd></div>
+    </dl>
+    ${r.conflicts.length ? `<div><h4>Widersprüche</h4>${list(r.conflicts)}</div>` : ""}
+    <div><h4>Einschätzung</h4>${list(r.assessment)}</div>
+    <div><h4>Unsicherheiten</h4>${list(r.uncertainties)}</div>
+    <div><h4>Fragen für die Besichtigung</h4><ul class="checks">${r.questions.map(q => `<li><label><input type="checkbox"><span>${esc(q)}</span></label></li>`).join("")}</ul></div>
+    <p class="note">Keine amtliche Auskunft. Grundlage: <a href="https://www.fedlex.admin.ch/eli/cc/1995/4425_4425_4425/de#art_33" target="_blank" rel="noopener">Art. 33 VTS</a>, Regelfristen für Motorräder${r.veteran === "claimed" || r.veteran === "seen" ? `, und <a href="${ASTRA_VETERAN}" target="_blank" rel="noopener">ASTRA-Weisungen für Veteranenfahrzeuge</a> vom 10. Juli 2026` : ""}. Massgebend ist das Aufgebot des Strassenverkehrsamts.</p>`;
+  return r;
+}
+function fillMfkFromText(text) {
+  const p = parseMfkText(text), first = parseFirstRegistration(text);
+  const hasMfk = p.claim !== "unknown" || p.lastMfk || p.nextDue || p.conflict || p.veteran !== "unknown";
+  if (first) $("mfk-first").value = formatDate(first);
+  if (hasMfk) {
+    $("mfk").value = p.conflict ? "unknown" : p.claim;
+    $("mfk-last").value = p.lastMfk ? formatDate(p.lastMfk) : "";
+    $("mfk-source").value = "seller";
+    $("mfk-veteran").value = p.veteran;
+    mfkFromText = { conflict: p.conflict, nextDue: p.nextDue, ambiguous: p.ambiguous };
+  }
+  if (first || hasMfk) $("mfk-check").open = true;
+  return !!(first || hasMfk);
 }
 
 // Mini-Leiste auf dem Handy: zeigt das Urteil, solange man im Formular ist und das Ergebnis nicht sieht
@@ -265,7 +323,8 @@ function firstMatch(text, patterns, ok) {
   return null;
 }
 function parseInserat(text) {
-  const t = text.replace(/ /g, " ");
+  // MFK-Daten vorher entfernen, sonst gelten sie als Jahrgang oder Preis
+  const t = stripMfkText(text).replace(/ /g, " ");
   const n = "(\\d{1,3}(?:[ '’.]\\d{3})+|\\d+)";
   const price = firstMatch(t, [
     new RegExp(`(?:CHF|SFr\\.?|Fr\\.)\\s*${n}`, "gi"),
@@ -323,12 +382,14 @@ $("paste-comp").onclick = () => {
 };
 $("paste-ad").onclick = () => {
   const r = parseInserat($("paste").value), out = $("paste-out");
-  if (!r.price && r.km == null && !r.year && !r.model) { out.textContent = "Darin habe ich nichts erkannt. Trag die Werte von Hand ein."; return; }
+  const mfkFound = fillMfkFromText($("paste").value);
+  if (mfkFound) update();
+  if (!r.price && r.km == null && !r.year && !r.model && !mfkFound) { out.textContent = "Darin habe ich nichts erkannt. Trag die Werte von Hand ein."; return; }
   if (r.price) { $("ask").value = r.price; setAdReal("ask"); }
   if (r.km != null) { $("km").value = r.km; setAdReal("km"); }
   if (r.year) { $("year").value = r.year; setAdReal("year"); }
   if (r.model && r.model.id !== $("model").value) { $("model").value = r.model.id; onModelChange(); }
-  out.textContent = `Oben übernommen: ${[r.model ? r.model.marke + " " + r.model.modell : null, pasteSummary(r)].filter(Boolean).join(" · ")}. Prüf die Werte.`;
+  out.textContent = `Oben übernommen: ${[r.model ? r.model.marke + " " + r.model.modell : null, pasteSummary(r), mfkFound ? "MFK-Angaben unter D" : null].filter(Boolean).join(" · ")}. Prüf die Werte.`;
   $("paste").value = "";
   update();
 };
@@ -336,6 +397,7 @@ $("paste-ad").onclick = () => {
 document.addEventListener("input", e => {
   if (!e.target.closest(".tool")) return;
   if (AD_FIELDS.includes(e.target.id)) setAdReal(e.target.id);
+  if (e.target.id === "mfk" || e.target.classList.contains("mfk-input")) mfkFromText = MFK_TEXT_EMPTY;
   const row = e.target.closest(".comp-row");
   if (row) setRowReal(row);
   update();
@@ -347,6 +409,8 @@ $("clear").onclick = () => {
   $("comp-rows").innerHTML = ""; for (let i = 0; i < 3; i++) addRow();
   removeExamples();
   $("ask").value = ""; $("km").value = ""; document.querySelectorAll(".extra").forEach(i => i.value = "");
+  $("mfk").value = "unknown"; $("mfk-first").value = ""; $("mfk-last").value = ""; $("mfk-source").value = "seller"; $("mfk-canton").value = ""; $("mfk-veteran").value = "unknown";
+  mfkFromText = MFK_TEXT_EMPTY;
   update();
 };
 $("print").onclick = () => window.print();
