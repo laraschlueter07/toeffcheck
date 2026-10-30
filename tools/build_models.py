@@ -189,7 +189,7 @@ def page(m, models):
     if brand:
         related_html += f'<h3 class="list-title">Weitere Modelle von {e(m["marke"])}</h3><div class="find-links">{link_list(brand)}</div>'
     if kind:
-        related_html += f'<h3 class="list-title">Ähnliche Töffs: {e(typ["name"])}</h3><div class="find-links">{link_list(kind)}</div>'
+        related_html += f'<h3 class="list-title">Andere Marken: {e(typ["name"])}</h3><div class="find-links">{link_list(kind)}</div>'
     return f"""<!doctype html>
 <html lang="de-CH">
 <head>

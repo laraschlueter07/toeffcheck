@@ -3,6 +3,9 @@
 export const LIMITS = { priceMin: 200, priceMax: 300000, kmMin: 0, kmMax: 400000 };
 export const FAIR_BAND = 0.08;
 const OUTLIER_SHARE = 0.25;
+const SUSPECT_BAND = 0.25;       // So weit unter dem fairen Preis ist kein Schnäppchen mehr, sondern auffällig
+const MAX_LOSS_PER_1000 = 0.15;  // Mehr Wertverlust pro 1'000 km ist kein echter Trend, sondern ein Datenproblem
+const WIDE_SCATTER = 0.15;
 
 export const num = v => {
   if (v === null || v === undefined || v === "") return null;
@@ -44,10 +47,14 @@ export function estimatePrice(points, km) {
   if (km < kmin - margin || km > kmax + margin) return { ok: false, reason: "km_out_of_range" };
   const line = theilSen(points);
   const falling = line && line.slope < 0;
-  const est = falling ? line.intercept + line.slope * km : median(points.map(p => p.price));
+  const mid = median(points.map(p => p.price));
+  if (falling && -line.slope * 1000 > mid * MAX_LOSS_PER_1000) return { ok: false, reason: "implausible_estimate" };
+  // Nicht über die Daten hinaus hochrechnen: Ausserhalb gilt der Wert am Rand der Angebote.
+  const at = Math.min(kmax, Math.max(kmin, km));
+  const est = falling ? line.intercept + line.slope * at : mid;
   const prices = points.map(p => p.price);
   if (est <= 0 || est < Math.min(...prices) * 0.5 || est > Math.max(...prices) * 1.5) return { ok: false, reason: "implausible_estimate" };
-  return { ok: true, est, slope: falling ? line.slope : null, intercept: falling ? line.intercept : est };
+  return { ok: true, est, slope: falling ? line.slope : null, intercept: falling ? line.intercept : est, outsideData: at !== km };
 }
 
 export function findOutliers(points) {
@@ -61,7 +68,8 @@ export const REASONS = {
   km_missing: "Trag den Kilometerstand des Inserats ein.",
   too_few: "Trag mindestens drei gültige Vergleichsangebote ein.",
   km_out_of_range: "Der Kilometerstand liegt zu weit ausserhalb deiner Vergleichsangebote. Eine Schätzung wäre hier geraten.",
-  implausible_estimate: "Aus diesen Angeboten ergibt sich kein plausibler Preis. Prüf die Eingaben."
+  implausible_estimate: "Aus diesen Angeboten ergibt sich kein plausibler Preis. Prüf die Eingaben oder ergänze Angebote mit anderen Kilometerständen.",
+  year_mismatch: "Die meisten Vergleichsangebote sind mehr als zwei Jahrgänge entfernt. Such Angebote mit ähnlichem Jahrgang."
 };
 
 // Manueller Preisvergleich. rows: [{price, km, year, example}]
@@ -87,10 +95,18 @@ export function manualCheck({ rows, km, ask, extras = 0, year = null, model = nu
     : `${outliers.length} Angebot(e) weichen stark ab, es bleiben aber zu wenige übrig, um sie auszuschliessen.`);
   const r = estimatePrice(clean, kmV);
   if (!r.ok) return { ...refuse(r.reason), outliers: outliers.map(o => o.row) };
-  if (r.slope === null) warnings.push("Bei diesen Angeboten sinkt der Preis nicht mit den Kilometern. Gerechnet wird mit dem mittleren Preis.");
   if (y) {
     const far = clean.filter(c => c.year && Math.abs(c.year - y) > 2).length;
+    if (far > clean.length / 2) return { ...refuse("year_mismatch"), outliers: outliers.map(o => o.row) };
     if (far) warnings.push(`${far} Angebot(e) sind mehr als zwei Jahrgänge entfernt. Das kann den Preis verzerren.`);
+    const noYear = clean.filter(c => !c.year).length;
+    if (noYear) warnings.push(`Bei ${noYear} Angebot(en) fehlt der Jahrgang. Töffcheck kann deshalb nicht prüfen, ob sie vergleichbar sind.`);
+  }
+  if (r.slope === null) warnings.push("Bei diesen Angeboten sinkt der Preis nicht mit den Kilometern. Gerechnet wird mit dem mittleren Preis.");
+  if (r.outsideData) warnings.push("Der Kilometerstand liegt etwas ausserhalb deiner Angebote. Gerechnet wird mit dem Wert am Rand, die Schätzung ist unsicherer.");
+  const expected = c => (r.slope === null ? r.est : r.intercept + r.slope * c.km);
+  if (Math.max(...clean.map(c => Math.abs(c.price - expected(c)) / r.est)) > WIDE_SCATTER) {
+    warnings.push("Die Angebote streuen stark, das Urteil ist deshalb unsicher. Prüf, ob Version und Ausstattung wirklich vergleichbar sind.");
   }
 
   const result = {
@@ -102,7 +118,7 @@ export function manualCheck({ rows, km, ask, extras = 0, year = null, model = nu
     const eff = askV + add;
     result.effective = eff;
     result.diff = (eff - r.est) / r.est;
-    result.verdict = result.diff <= -FAIR_BAND ? "good" : result.diff >= FAIR_BAND ? "high" : "fair";
+    result.verdict = result.diff <= -SUSPECT_BAND ? "suspect" : result.diff <= -FAIR_BAND ? "good" : result.diff >= FAIR_BAND ? "high" : "fair";
     const goal = r.est - add;
     if (goal > 0 && auf50(Math.min(askV, goal)) < askV - 50) {
       result.target = auf50(goal);

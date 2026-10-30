@@ -131,10 +131,11 @@ function update() {
   const pct = (Math.abs(d) * 100).toFixed(1);
   $("diff").textContent = (pct === "0.0" ? "" : d > 0 ? "+" : "−") + pct.replace(".", ",") + " %";
   const what = add ? "Mit den anstehenden Kosten liegt das Angebot" : "Das Angebot liegt";
-  const verdict = { good: "Guter Deal", fair: "Fair", high: "Zu teuer" }[r.verdict];
-  badge.className = "badge " + { good: "good", fair: "fair", high: "bad" }[r.verdict];
+  const verdict = { suspect: "Auffällig tief", good: "Guter Deal", fair: "Fair", high: "Zu teuer" }[r.verdict];
+  badge.className = "badge " + { suspect: "fair", good: "good", fair: "fair", high: "bad" }[r.verdict];
   badge.textContent = label(verdict);
   $("verdict-text").textContent = isExample ? "Das ist nur eine Beispielrechnung. Trag dein Inserat und echte Vergleichsangebote ein."
+    : r.verdict === "suspect" ? `${what} ${delta} unter dem fairen Preis. Das ist kein normales Schnäppchen: Unfall, Mängel, fehlende Papiere oder Betrug sind möglich. Nichts im Voraus zahlen und genau prüfen.`
     : r.verdict === "good" ? `${what} ${delta} unter dem fairen Preis. Schnell besichtigen und genau hinschauen, warum es so günstig ist.`
     : r.verdict === "high" ? `${what} ${delta} über dem fairen Preis. Mit deinen Vergleichsangeboten verhandeln.`
     : `${what} nah am fairen Preis (${d > 0 ? "+" : "−"}${delta}). Zustand und Belege entscheiden.`;
@@ -144,7 +145,7 @@ function update() {
   if (!isExample && r.target !== null) {
     tip.hidden = false;
     tip.innerHTML = `Verhandlungsziel: <strong>${chf(r.target)}</strong>. Steig mit etwa <strong>${chf(r.opening)}</strong> ein und begründe es mit deinen Vergleichsangeboten${add ? " und den anstehenden Kosten" : ""}.`;
-  } else if (!isExample && r.verdict !== "high") {
+  } else if (!isExample && (r.verdict === "good" || r.verdict === "fair")) {
     tip.hidden = false;
     tip.textContent = "Der Preis liegt schon im fairen Bereich oder darunter. Verhandeln kannst du trotzdem, wichtiger ist jetzt eine gründliche Besichtigung.";
   }

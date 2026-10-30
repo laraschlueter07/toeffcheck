@@ -961,7 +961,7 @@ const MODELLE = [
 
   /* ---------- Suzuki ---------- */
   {
-    id: "suzuki-gsx-r600-750", marke: "Suzuki", modell: "GSX-R600 / GSX-R750", von: 1996, bis: null, typ: "supersport",
+    id: "suzuki-gsx-r600-750", marke: "Suzuki", modell: "GSX-R600 / GSX-R750", von: 1996, bis: 2018, typ: "supersport",
     motor: "599 oder 750 cm³, Vierzylinder", a2: false,
     kurz: "Klassische Suzuki-Supersportler. Die 750 ist eine seltene Mittelklasse zwischen 600 und 1000.",
     hinweis: "In Europa seit einigen Jahren nicht mehr neu erhältlich.",
