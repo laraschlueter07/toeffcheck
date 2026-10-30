@@ -154,6 +154,7 @@ input[type=checkbox] { width: 20px; height: 20px; min-height: 0; padding: 0; mar
 .comp-head { font: 600 .72rem/1 var(--f-mono); text-transform: uppercase; letter-spacing: .08em; color: var(--fg-2) }
 #comp-rows { display: grid; gap: 8px }
 .comp-row.outlier input { border-color: var(--red-hi); background: #2b1615 }
+.is-example { border-style: dashed; color: var(--fg-2) }
 .icon-btn { height: 46px; border: 2px solid var(--line); background: transparent; font: 600 1.3rem/1 var(--f-body); cursor: pointer; color: var(--fg-2) }
 .icon-btn:hover { border-color: var(--red); color: var(--red-hi) }
 .row-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px }
@@ -211,6 +212,7 @@ input[type=checkbox] { width: 20px; height: 20px; min-height: 0; padding: 0; mar
 @media (min-width: 640px) { .proscons { grid-template-columns: 1fr 1fr } }
 .proscons > div { background: var(--card); border: 1px solid var(--line); padding: 18px }
 .proscons h3 { font-size: 1.3rem; margin-bottom: 10px }
+.proscons .list-title { font-size: 1.3rem; margin: 0 0 10px }
 .plus, .minus { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px }
 .plus li, .minus li { display: grid; grid-template-columns: 22px 1fr; gap: 6px; font-size: .97rem }
 .plus li::before, .minus li::before { font: 600 1.05rem/1.45 var(--f-mono) }
@@ -345,4 +347,7 @@ input[type=checkbox] { width: 20px; height: 20px; min-height: 0; padding: 0; mar
   .kicker, .rat-hinweis, .checks span, .proscons li { color: #000 }
   .check-card, .proscons > div, .spec { border: 1px solid #000; box-shadow: none; break-inside: avoid; background: #fff; color: #000 }
   .check-grid { grid-template-columns: 1fr 1fr }
+  .cta { display: none }
+  .lead { color: #000 }
+  .find-link { background: #fff; color: #000 }
 }

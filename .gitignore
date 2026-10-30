@@ -1,3 +1,9 @@
 .claude/settings.local.json
 desktop.ini
 Thumbs.db
+
+# Bewusst nur lokal: Marktpreis-Prototyp, bis Datenrechte und Veröffentlichung geklärt sind.
+# Kein Git-Backup: Sicherung liegt in lokal-sicherung/, Details in CLAUDE.md.
+prototype/
+worker/
+lokal-sicherung/

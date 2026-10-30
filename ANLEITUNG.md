@@ -54,6 +54,19 @@ Alle Modelle stehen in **`site/modelle.js`**. Oben in der Datei ist erklärt, wa
 
 Das Modell erscheint danach automatisch im Preis-Check, im Ratgeber und auf der Modellseite.
 
+### Eigene Modellseiten für Google
+
+Jedes Modell bekommt automatisch eine Seite unter `toeffcheck.ch/modell/<id>/`. Die Seiten, die Modellliste und die Sitemap erzeugt `tools/build_models.py` aus `site/modelle.js`, auch bei jedem Deploy. Von Hand musst du dort nichts ändern.
+
+Lokal neu erzeugen und prüfen:
+
+```
+python tools/build_models.py --list
+python tools/check_site.py
+```
+
+Modelle mit wenig eigenem Text (unter 300 Zeichen oder unter 4 eigenen Punkten) bekommen `noindex` und stehen nicht in der Sitemap. `--list` zeigt sie. Sobald ein Eintrag genug belegten Inhalt hat, wird er beim nächsten Lauf automatisch indexierbar. Standardsätze wie «Kette und Ritzel.» zählen nicht als eigener Text.
+
 ## Google Search Console (einmalig, 10 Minuten)
 
 Damit Google die Seite schneller findet und du siehst, mit welchen Suchbegriffen Leute kommen:
