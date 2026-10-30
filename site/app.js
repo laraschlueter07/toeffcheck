@@ -1,5 +1,7 @@
 // Töffcheck Startseite: Preis-Check, Modell-Ratgeber, Reifenalter und Warteliste.
 import { manualCheck, exampleRows, num } from "./rechner.js";
+import { parseInserat } from "./inserat.js";
+import { MODELLNAMEN, motoscoutLinks } from "./modellnamen.js";
 import { parseDateText, parseMfkText, stripMfkText, parseFirstRegistration, assessMfk, mfkSummary, formatDate } from "./mfk.js";
 
 const $ = id => document.getElementById(id);
@@ -296,10 +298,8 @@ function onModelChange() {
 const suchbegriff = m => m ? `${m.marke} ${m.modell.split("/")[0].replace(/\(.*?\)/g, "").trim()}` : "";
 function renderLinks() {
   const q = encodeURIComponent($("find-q").value.trim());
-  const m = currentModel();
-  const brand = m ? m.marke.toLowerCase().replace(/[^a-z0-9]+/g, "-") : "";
   const links = [
-    ["MotoScout24" + (m ? ` (${m.marke})` : ""), m ? `https://www.motoscout24.ch/de/s/mk-${brand}` : "https://www.motoscout24.ch/de/s"],
+    ...motoscoutLinks(currentModel()).map(l => [l.label, l.url]),
     ["ricardo", `https://www.ricardo.ch/de/s/${q}`],
     ["tutti.ch", `https://www.tutti.ch/de/q/suche?query=${q}`],
     ["Facebook Marketplace", `https://www.facebook.com/marketplace/search/?query=${q}`]
@@ -311,88 +311,62 @@ $("find-q").value = suchbegriff(currentModel());
 renderLinks();
 
 // ---------- Inserat-Text übernehmen ----------
-// Liest Preis, Kilometer und Jahrgang aus Text, den man selbst aus einem Inserat kopiert hat.
-const toNum = s => parseFloat(s.replace(/[\s'’]/g, "").replace(/\.(?=\d{3}(\D|$))/g, "").replace(",", "."));
-function firstMatch(text, patterns, ok) {
-  for (const re of patterns) {
-    for (const hit of text.matchAll(re)) {
-      const v = toNum(hit[1]);
-      if (ok(v)) return { v, raw: hit[0] };
-    }
+// Liest Angaben aus kopiertem Text. Übernommen wird erst, wenn man sie geprüft hat.
+const readPaste = () => parseInserat($("paste").value, { models: MODELLE, names: MODELLNAMEN });
+function showReview(target) {
+  const out = $("paste-out"), box = $("paste-review");
+  if (!$("paste").value.trim()) { box.hidden = true; out.textContent = "Kopier zuerst einen Inserat-Text ins Feld."; return; }
+  const r = readPaste();
+  out.textContent = "";
+  box.dataset.target = target;
+  const modelField = target === "ad" ? `<label class="span-2" for="rv-model">Modell<select id="rv-model">${$("model").innerHTML}</select></label>` : "";
+  box.innerHTML = `<h4>Erkannt, bitte prüfen</h4>
+    <div class="fields">${modelField}
+      <label for="rv-price">Verkaufspreis <small>(CHF)</small><input id="rv-price" type="number" inputmode="numeric" min="0" step="50" value="${r.price ?? ""}"></label>
+      <label for="rv-km">Kilometerstand<input id="rv-km" type="number" inputmode="numeric" min="0" step="100" value="${r.km ?? ""}"></label>
+      <label for="rv-year">Jahrgang<input id="rv-year" type="number" inputmode="numeric" min="1950" max="${THIS_YEAR + 1}" value="${r.year ?? ""}"></label>
+    </div>
+    ${r.candidates.length > 1 ? `<div class="row-actions rv-choices">${r.candidates.map(v => `<button type="button" class="btn btn-small btn-ghost" data-price="${v}">${chf(v)} ist der Preis</button>`).join("")}</div>` : ""}
+    ${r.hints.length ? `<ul class="rv-hints">${r.hints.map(h => `<li>${esc(h)}</li>`).join("")}</ul>` : ""}
+    ${r.ignored.length ? `<p class="note">Nicht als Verkaufspreis gezählt: ${r.ignored.map(i => `${chf(i.value)} (${esc(i.why)})`).join(", ")}.</p>` : ""}
+    <div class="row-actions">
+      <button type="button" class="btn btn-small btn-red" id="rv-apply">Übernehmen</button>
+      <button type="button" class="btn btn-small btn-ghost" id="rv-cancel">Abbrechen</button>
+    </div>`;
+  if (target === "ad") $("rv-model").value = r.model ? r.model.id : $("model").value;
+  box.hidden = false;
+  box.scrollIntoView({ block: "nearest" });
+}
+function applyReview() {
+  const box = $("paste-review"), text = $("paste").value, out = $("paste-out");
+  const price = $("rv-price").value, km = $("rv-km").value, year = $("rv-year").value;
+  if (box.dataset.target === "comp") {
+    removeExampleRows();
+    const empty = [...$("comp-rows").children].find(row => [...row.querySelectorAll("input")].every(i => !i.value));
+    const row = empty || addRow();
+    const [p, k, y] = row.querySelectorAll("input");
+    p.value = price; k.value = km; y.value = year;
+    (!price ? p : !km ? k : p).focus?.();
+    out.textContent = !price ? "Übernommen. Der Preis fehlt noch." : !km ? "Übernommen. Die Kilometer fehlen noch." : "Als Vergleichsangebot übernommen.";
+  } else {
+    const model = $("rv-model").value;
+    if (model !== $("model").value) { $("model").value = model; onModelChange(); }
+    [["ask", price], ["km", km], ["year", year]].forEach(([id, v]) => { $(id).value = v; setAdReal(id); });
+    const mfkFound = fillMfkFromText(text);
+    out.textContent = (!price ? "Übernommen. Der Preis fehlt noch, trag ihn oben ein." : "Oben übernommen.") + (mfkFound ? " MFK-Angaben stehen unter D." : "");
   }
-  return null;
-}
-function parseInserat(text) {
-  // MFK-Daten vorher entfernen, sonst gelten sie als Jahrgang oder Preis
-  const t = stripMfkText(text).replace(/ /g, " ");
-  const n = "(\\d{1,3}(?:[ '’.]\\d{3})+|\\d+)";
-  const price = firstMatch(t, [
-    new RegExp(`(?:CHF|SFr\\.?|Fr\\.)\\s*${n}`, "gi"),
-    new RegExp(`${n}(?:[.,][-–]+|\\s*(?:CHF|Fr\\.))`, "gi"),
-    new RegExp(`Preis\\D{0,15}${n}`, "gi")
-  ], v => v >= 200 && v <= 300000);
-  const km = firstMatch(t, [
-    new RegExp(`${n}\\s*km\\b`, "gi"),
-    new RegExp(`Kilometer(?:stand)?\\D{0,15}${n}`, "gi")
-  ], v => v >= 0 && v <= 400000);
-  let rest = t;
-  [price, km].forEach(h => { if (h) rest = rest.replace(h.raw, " "); });
-  const yearHit = rest.match(/(?:Inverkehrsetzung|Inv\.|Erstzulassung|Jahrgang|Baujahr|Modelljahr|EZ)\D{0,20}?(?:\d{1,2}[./]\s*)?((?:19|20)\d{2})/i)
-    || rest.match(/\b(?:0?[1-9]|1[0-2])[./]((?:19|20)\d{2})\b/)
-    || rest.match(/\b(19[7-9]\d|20[0-3]\d)\b/);
-  const year = yearHit && +yearHit[1] <= THIS_YEAR + 1 ? +yearHit[1] : null;
-  // Modell erkennen: Marke und eine Modellbezeichnung kommen im Text vor
-  const norm = s => s.toLowerCase().replace(/[^a-z0-9]/g, "");
-  const nt = norm(t);
-  let model = null, best = 0;
-  MODELLE.forEach(m => {
-    if (!nt.includes(norm(m.marke))) return;
-    const variants = m.modell.split("/").map(v => v.replace(/\(.*?\)/g, "").trim());
-    const base = variants[0].split(" ")[0];
-    // "Panigale 899 / 959 / V2" soll auch "Panigale V2" finden
-    variants.flatMap(v => v.startsWith(base) ? [v] : [v, base + " " + v]).map(norm).forEach(v => {
-      if (v.length >= 3 && nt.includes(v) && v.length > best) { model = m; best = v.length; }
-    });
-  });
-  // Preis ohne CHF: die grösste übrige Zahl, die weder Jahrgang noch Teil des Modellnamens ist
-  let priceV = price && price.v;
-  if (!priceV) {
-    const nums = [...rest.matchAll(new RegExp(n, "g"))].map(h => toNum(h[1]))
-      .filter(v => v >= 1000 && v <= 300000 && v !== year && !(model && (model.modell + " " + model.motor).includes(String(v))));
-    if (nums.length) priceV = Math.max(...nums);
-  }
-  return { price: priceV || null, km: km && km.v, year, model };
-}
-function pasteSummary(r) {
-  const parts = [r.price ? chf(r.price) : null, r.km != null ? zahl(r.km) + " km" : null, r.year].filter(Boolean);
-  return parts.length ? parts.join(" · ") : "";
-}
-$("paste-comp").onclick = () => {
-  const r = parseInserat($("paste").value), out = $("paste-out");
-  if (!r.price && r.km == null) { out.textContent = "Darin habe ich weder Preis noch Kilometer gefunden. Trag die Werte von Hand ein."; return; }
-  removeExampleRows();
-  const empty = [...$("comp-rows").children].find(row => [...row.querySelectorAll("input")].every(i => !i.value));
-  const row = empty || addRow();
-  const [p, k, y] = row.querySelectorAll("input");
-  p.value = r.price || ""; k.value = r.km ?? ""; y.value = r.year || "";
-  out.textContent = `Übernommen: ${pasteSummary(r)}. Prüf die Werte in der Tabelle.` + (!r.price ? " Der Preis fehlt noch." : r.km == null ? " Die Kilometer fehlen noch." : "");
-  $("paste").value = "";
-  (!r.price ? p : r.km == null ? k : row).focus?.();
-  update();
-};
-$("paste-ad").onclick = () => {
-  const r = parseInserat($("paste").value), out = $("paste-out");
-  const mfkFound = fillMfkFromText($("paste").value);
-  if (mfkFound) update();
-  if (!r.price && r.km == null && !r.year && !r.model && !mfkFound) { out.textContent = "Darin habe ich nichts erkannt. Trag die Werte von Hand ein."; return; }
-  if (r.price) { $("ask").value = r.price; setAdReal("ask"); }
-  if (r.km != null) { $("km").value = r.km; setAdReal("km"); }
-  if (r.year) { $("year").value = r.year; setAdReal("year"); }
-  if (r.model && r.model.id !== $("model").value) { $("model").value = r.model.id; onModelChange(); }
-  out.textContent = `Oben übernommen: ${[r.model ? r.model.marke + " " + r.model.modell : null, pasteSummary(r), mfkFound ? "MFK-Angaben unter D" : null].filter(Boolean).join(" · ")}. Prüf die Werte.`;
+  box.hidden = true; box.innerHTML = "";
   $("paste").value = "";
   update();
-};
+}
+$("paste-comp").onclick = () => showReview("comp");
+$("paste-ad").onclick = () => showReview("ad");
+$("paste-review").addEventListener("click", e => {
+  const choice = e.target.closest("[data-price]");
+  if (choice) { $("rv-price").value = choice.dataset.price; return; }
+  if (e.target.id === "rv-apply") applyReview();
+  if (e.target.id === "rv-cancel") { $("paste-review").hidden = true; $("paste-review").innerHTML = ""; }
+});
 
 document.addEventListener("input", e => {
   if (!e.target.closest(".tool")) return;

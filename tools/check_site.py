@@ -175,6 +175,11 @@ def main():
     inbound = Counter(ref.replace("../", "") for r in model_pages for ref in pages[r].refs if re.fullmatch(r"\.\./[a-z0-9-]+/", ref))
     orphans = [r for r in indexable if not inbound[r.split("/")[1] + "/"]]
 
+    # Jedes Modell braucht einen Eintrag für die MotoScout24-Links und die Inserat-Erkennung
+    named = set(re.findall(r'^  "([a-z0-9-]+)": \{', (SITE / "modellnamen.js").read_text(encoding="utf-8"), re.M))
+    for model_id in re.findall(r'^\s+id: "([a-z0-9-]+)", marke:', (SITE / "modelle.js").read_text(encoding="utf-8"), re.M):
+        if model_id not in named:
+            errors.append(f"modellnamen.js: Eintrag für {model_id} fehlt")
     for name in ("rechner.js", "mfk.js"):
         copy, src = SITE / name, ROOT / "worker" / "src" / name
         if src.exists() and copy.read_bytes().replace(b"\r\n", b"\n") != src.read_bytes().replace(b"\r\n", b"\n"):

@@ -20,6 +20,8 @@ Dieses Projekt ist ein **Business-Projekt**, kein Lernprojekt. Nicht unterrichte
 
 **Design und Texte:** Schwarz-Rot (Laras Wunsch 27.10.2026, kein Gelb mehr): Grund #0d0d0e, Schrift #f3f1ec, Rennrot #e1251b (Text-Rot #ff4a3d), harte Kanten, Schriften Big Shoulders Display / IBM Plex Sans / IBM Plex Mono. Logo: rotes Oval mit weissem Haken. Keine generischen Verläufe, Emojis oder Floskeln. Texte kurz, konkret, Schweizer Schreibweise, du-Form, kaum Gedankenstriche. Modellinfos nur, wenn sie belegbar sind; im Zweifel als Prüfpunkt formulieren statt als Tatsache.
 
+**Inserat-Erkennung und Links:** `site/inserat.js` liest kopierten Text und rät nie: Bei mehreren möglichen Preisen bleibt das Feld leer, und die Werte werden erst nach der Prüfansicht übernommen. Nie für Datenfeeds verwenden. `site/modellnamen.js` enthält pro Modell die MotoScout24-Seiten (Schlüssel aus deren Modellliste) und Schreibweisen; `check_site.py` verlangt für jedes Modell einen Eintrag. Neue Modelle dort mit ergänzen.
+
 ## Ordner
 - `site/` – die Website (statisch, kein Build): `index.html` (Preis-Check, Ratgeber, Checkliste, FAQ, Warteliste), `modelle.html` + `liste.js` (Modellübersicht), `modelle.js` (**Modell-Datenbank, neue Modelle hier einfügen**), `app.js`, `style.css`, `impressum.html`, `agb.html`, `datenschutz.html`, `danke.html`, `404.html`, `robots.txt`, `sitemap.xml`, Icons, `img/` (Unsplash-Fotos, Bildnachweis im Impressum)
 - `site/modell/<id>/` – generierte Modellseiten, nicht von Hand ändern. `tools/build_models.py` erzeugt sie, die Liste in `modelle.html` und `sitemap.xml` aus `modelle.js`; `tools/check_site.py` prüft Links, Canonicals, Titel und Sitemap. Beides läuft auch im Deploy. Keine Build-Pakete, nur Python-Standardbibliothek.

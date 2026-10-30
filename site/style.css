@@ -210,6 +210,9 @@ input[type=checkbox] { width: 20px; height: 20px; min-height: 0; padding: 0; mar
 .mfk-axis strong { font: 600 1rem/1.3 var(--f-mono) }
 .mfk-axis small { color: var(--fg-2); font-size: .85rem; line-height: 1.4 }
 .mfk-axis.unconfirmed, .mfk-axis.conflict, .mfk-axis.year_only { border-left: 4px solid var(--bad) }
+.paste-review { display: grid; gap: 12px; padding: 14px; border: 2px solid var(--red); background: var(--bg-2); min-width: 0 }
+.paste-review h4 { margin: 0; font: 700 1.05rem/1.2 var(--f-display); text-transform: uppercase; letter-spacing: .02em }
+.rv-hints { margin: 0; padding-left: 1.1em; display: grid; gap: 4px; font-size: .92rem }
 .mini-result { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; align-items: center; gap: 12px; padding: 10px max(var(--gutter), env(safe-area-inset-left, 0px)) calc(10px + env(safe-area-inset-bottom, 0px)); background: var(--bg); color: var(--fg); text-decoration: none; border-top: 3px solid var(--red) }
 .mini-result .badge { font-size: 1rem; padding: 5px 8px 4px }
 .mini-diff { font: 900 1.6rem/1 var(--f-display) }
