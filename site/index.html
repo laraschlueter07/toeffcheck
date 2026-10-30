@@ -148,9 +148,13 @@
               </label>
               <label for="mfk">MFK
                 <select id="mfk">
+                  <option value="unknown" selected>Unbekannt</option>
                   <option value="fresh">Frisch ab MFK</option>
-                  <option value="valid" selected>Gültig</option>
-                  <option value="due">Fällig / unbekannt</option>
+                  <option value="valid">Gültig</option>
+                  <option value="due">Fällig</option>
+                  <option value="none">Ohne MFK</option>
+                  <option value="as_is">Ab Platz</option>
+                  <option value="offered">Nur angekündigt</option>
                 </select>
               </label>
             </div>
@@ -194,6 +198,33 @@
               <label for="x-mfk">MFK und Reparaturen <small>(CHF)</small><input id="x-mfk" class="extra" type="number" inputmode="numeric" min="0" step="10" placeholder="0"></label>
               <label for="x-sonst">Sonstiges <small>(CHF)</small><input id="x-sonst" class="extra" type="number" inputmode="numeric" min="0" step="10" placeholder="0"></label>
             </div>
+          </details>
+
+          <details class="group extras" id="mfk-check">
+            <summary><span class="tag">D</span> MFK-Check <small>(optional)</small></summary>
+            <p class="hint">Hilft dir, die MFK einzuschätzen. Am Preis ändert das nichts. Daten findest du im Inserat und im Fahrzeugausweis, zum Beispiel 04.2021.</p>
+            <div class="fields">
+              <label for="mfk-first">Erste Inverkehrsetzung<input id="mfk-first" class="mfk-input" type="text" autocomplete="off" placeholder="MM.JJJJ"></label>
+              <label for="mfk-last">Letzte MFK<input id="mfk-last" class="mfk-input" type="text" autocomplete="off" placeholder="MM.JJJJ"></label>
+              <label for="mfk-source">Woher stammt das Datum?
+                <select id="mfk-source" class="mfk-input">
+                  <option value="seller" selected>Inserat oder Verkäufer</option>
+                  <option value="document">Prüfbericht selbst gesehen</option>
+                </select>
+              </label>
+              <label for="mfk-canton">Kanton der Zulassung
+                <select id="mfk-canton" class="mfk-input"><option value="">Unbekannt</option></select>
+              </label>
+              <label for="mfk-veteran">Veteranenstatus
+                <select id="mfk-veteran" class="mfk-input">
+                  <option value="unknown" selected>Unbekannt</option>
+                  <option value="no">Kein Veteran</option>
+                  <option value="claimed">Laut Inserat oder Verkäufer</option>
+                  <option value="seen">Im Fahrzeugausweis gesehen</option>
+                </select>
+              </label>
+            </div>
+            <div id="mfk-out" class="mfk-out" aria-live="polite"></div>
           </details>
         </div>
 
@@ -386,6 +417,8 @@
         <details><summary>Wie rechnet Töffcheck den fairen Preis?</summary><p>Je mehr Kilometer, desto günstiger, das gilt fast immer. Töffcheck legt eine Linie durch deine Vergleichsangebote (Preis über Kilometer) und liest ab, was ein Töff mit dem Kilometerstand deines Inserats kosten sollte. Liegt der Preis mehr als 8 % darunter, ist es ein guter Deal, liegt er mehr als 8 % darüber, ist er zu teuer. Mehr als 25 % darunter gilt als auffällig tief. Sinkt der Preis bei deinen Angeboten nicht mit den Kilometern, nimmt Töffcheck den mittleren Preis (Median).</p></details>
         <details><summary>Wie viele Vergleichsangebote brauche ich?</summary><p>Mindestens drei. Streuen drei Angebote stark, gibt es keine zuverlässige Bewertung. Mit fünf bis acht Angeboten wird das Ergebnis deutlich stabiler. Nimm das gleiche Modell und ähnliche Jahrgänge. Stark abweichende Angebote markiert Töffcheck rot und rechnet sie nicht mit.</p></details>
         <details><summary>Was heisst «ab MFK»?</summary><p>Der Töff war frisch bei der Motorfahrzeugkontrolle des Strassenverkehrsamts und hat sie bestanden. Mängel aus der Prüfung sind behoben. Frag nach dem Prüfbericht.</p></details>
+        <details><summary>Wie schätzt Töffcheck die MFK ein?</summary><p>Mit den Regelfristen aus Art. 33 VTS für Motorräder: erste Prüfung nach fünf, spätestens sechs Jahren ab der ersten Inverkehrsetzung, dann nach drei Jahren, danach alle zwei Jahre. Das ist eine Schätzung. Massgebend ist das Aufgebot deines Strassenverkehrsamts, und Töffcheck hat keinen Zugriff auf amtliche Daten. Angaben aus dem Inserat bleiben unbestätigt, auch wenn das Datum plausibel wirkt. Auf den fairen Preis hat die MFK keinen Einfluss.</p></details>
+        <details><summary>Gelten für Veteranen andere MFK-Fristen?</summary><p>Das kann sein, aber nicht einfach wegen des Alters. Veteran ist ein Töff erst, wenn der Status im Fahrzeugausweis steht. Dafür braucht es unter anderem eine erste Inverkehrsetzung vor mehr als 30 Jahren, rein private Nutzung und im Schnitt höchstens 3000 km pro Jahr. Laut den <a href="https://www.astra.admin.ch/dam/de/sd-web/5Xwv1p543cGt/Weisungen%20f%C3%BCr%20Veteranenfahrzeuge.pdf" target="_blank" rel="noopener">ASTRA-Weisungen vom 10. Juli 2026</a> können die Intervalle dann bis auf sechs Jahre ausgedehnt werden. Töffcheck rechnet dafür keinen Termin. Die Frist klärst du über die Fahrzeugdokumente oder beim Strassenverkehrsamt.</p></details>
         <details><summary>Was bedeutet 35 kW oder A2?</summary><p>Mit dem Ausweis der Kategorie A beschränkt darfst du Töffs mit höchstens 35 kW fahren. Viele Modelle gibt es gedrosselt. Wichtig: Die Drosselung muss im Fahrzeugausweis eingetragen sein. Auf der <a href="modelle.html">Modellseite</a> kannst du nach A2-tauglichen Töffs filtern.</p></details>
         <details><summary>Werden meine Eingaben gespeichert?</summary><p>Nein. Der Preis-Check rechnet nur in deinem Browser. Gespeichert wird nur, was du freiwillig in die Warteliste einträgst. Mehr dazu in der <a href="datenschutz.html">Datenschutzerklärung</a>.</p></details>
         <details><summary>Mein Modell fehlt. Was nun?</summary><p>Wähl «Anderes Modell» und die Art des Töffs. Du bekommst dann die allgemeinen Punkte und die typischen Schwachstellen dieser Töff-Art. Wenn du ein Modell vermisst, schreib an <a href="mailto:lara.schlueter07@gmail.com?subject=Modellwunsch%20T%C3%B6ffcheck">lara.schlueter07@gmail.com</a>.</p></details>

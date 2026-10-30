@@ -175,9 +175,10 @@ def main():
     inbound = Counter(ref.replace("../", "") for r in model_pages for ref in pages[r].refs if re.fullmatch(r"\.\./[a-z0-9-]+/", ref))
     orphans = [r for r in indexable if not inbound[r.split("/")[1] + "/"]]
 
-    rechner_copy, rechner_src = SITE / "rechner.js", ROOT / "worker" / "src" / "rechner.js"
-    if rechner_src.exists() and rechner_copy.read_bytes().replace(b"\r\n", b"\n") != rechner_src.read_bytes().replace(b"\r\n", b"\n"):
-        errors.append("site/rechner.js weicht von worker/src/rechner.js ab")
+    for name in ("rechner.js", "mfk.js"):
+        copy, src = SITE / name, ROOT / "worker" / "src" / name
+        if src.exists() and copy.read_bytes().replace(b"\r\n", b"\n") != src.read_bytes().replace(b"\r\n", b"\n"):
+            errors.append(f"site/{name} weicht von worker/src/{name} ab")
 
     print(f"{len(pages)} HTML-Seiten, {links} interne Links und Dateien geprüft, {len(model_pages)} Modellseiten, "
           f"{len(indexable)} indexierbar, {len(locs)} URLs in der Sitemap")
